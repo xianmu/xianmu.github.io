@@ -1,30 +1,15 @@
-MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
-  var HTMLCSS = MathJax.OutputJax["HTML-CSS"],
-      MBASE = MathJax.ElementJax.mml.mbase.prototype;
-  HTMLCSS.Augment({
-    initHTML: function (math,span) {
-      this.em = MBASE.em = this.em/this.scale;
-      this.linebreakwidth *= this.scale;
-      this.scale = 1; span.style.fontSize = "100%";
-    }
-  });
-});
 MathJax.Hub.Config({
   showMathMenu: false,
+  jax: ["input/TeX","output/CommonHTML"],
+  extensions: ["tex2jax.js"],
   messageStyle: "none",
     tex2jax: {
       processEscapes: true,
       ignoreClass: "tex2jax_ignore",
-      processClass: "math"//,
-      //inlineMath: [['$','$'], ['\\(','\\)']],
-      //displayMath: [['$$','$$'], ['\\[','\\]']]
+      processClass: "math"
     },
-  "HTML-CSS": {
-    availableFonts: ["STIX","TeX"],
-    preferredFont: "STIX",
-    webFont: "STIX"
-  },
   TeX: { 
+    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js","autobold.js"],
     Macros: { 
         R: '{\\mathbb{R}}', 
         N: '{\\mathbb{N}}', 
@@ -37,7 +22,12 @@ MathJax.Hub.Config({
         lcm: '{\\mathop{\\operatorname{lcm}}}',
         bigtriangleright: '{\\mathop{\\Large \\triangleright}}',
         bigtriangleleft: '{\\mathop{\\Large \\triangleleft}}',
+        set: ['\\left\\{ #1 \\right\\}',1],
+        floor: ['\\left\\lfloor #1 \\right\\rfloor',1],
+        ceil:  ['\\left\\lceil #1 \\right\\rceil',1],
+        abs:  ['\\left| #1 \\right|',1]
      } 
     }
 });
+
 MathJax.Ajax.loadComplete("http://chaoxuprime.com/mathjax_conf.js");
