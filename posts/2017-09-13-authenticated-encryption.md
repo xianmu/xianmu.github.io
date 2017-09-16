@@ -11,7 +11,7 @@ tags: cryptography
 
 # EtM(encryption-then-mac)
 
-![Encryption-then-MAC](/files/authenticated_encryption_etm.png)
+![Encryption-then-MAC](/files/Authenticated_Encryption_EtM.png)
 
 EtM即先加密再MAC，明文作为加密算法的输入，MAC的输入是加密得到的密文，加密和MAC使用相同的密钥。整体输出由密文拼接MAC构成。
 
@@ -19,7 +19,7 @@ EtM即先加密再MAC，明文作为加密算法的输入，MAC的输入是加�
 
 # E&M(encryption-and-mac)
 
-![Encryption-and-MAC](/files/authenticated_encryption_eam.png)
+![Encryption-and-MAC](/files/Authenticated_Encryption_EaM.png)
 
 E&M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把密钥，整体输出也是由密文拼接MAC构成。
 
@@ -27,7 +27,7 @@ E&M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把�
 
 # MtE(mac-then-encryption)
 
-![MAC-then-Encryption](/files/authenticated_encryption_mte.png)
+![MAC-then-Encryption](/files/Authenticated_Encryption_MtE.png)
 
 MtE顾名思义，即先做MAC再做加密，MAC的输入是明文及密钥key，而加密算法的输入是明文拼接MAC的整体，MtE的输出即加密算法的输出密文。
 

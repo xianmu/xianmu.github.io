@@ -39,19 +39,19 @@
 <p>既然，加密算法能够提供保密性，MAC能够提供完整性和真实性，那要实现同时提供三种性质的AEAD，是不是只要将二者结合起来使用就可以了。事实上没这么简单，尽管加密算法及MAC各自有着良好的安全性保证，但是结合之后的AEAD的安全性却不一定那么可靠。AEAD一共有以下四种经典的做法。</p>
 <h1 id="etmencryption-then-mac"><span class="header-section-number">1</span> EtM(encryption-then-mac)</h1>
 <figure>
-<img src="/files/authenticated_encryption_etm.png" alt="Encryption-then-MAC" /><figcaption>Encryption-then-MAC</figcaption>
+<img src="/files/Authenticated_Encryption_EtM.png" alt="Encryption-then-MAC" /><figcaption>Encryption-then-MAC</figcaption>
 </figure>
 <p>EtM即先加密再MAC，明文作为加密算法的输入，MAC的输入是加密得到的密文，加密和MAC使用相同的密钥。整体输出由密文拼接MAC构成。</p>
 <p>接受方则先验证MAC，通过验证再进行解密。</p>
 <h1 id="emencryption-and-mac"><span class="header-section-number">2</span> E&amp;M(encryption-and-mac)</h1>
 <figure>
-<img src="/files/authenticated_encryption_eam.png" alt="Encryption-and-MAC" /><figcaption>Encryption-and-MAC</figcaption>
+<img src="/files/Authenticated_Encryption_EaM.png" alt="Encryption-and-MAC" /><figcaption>Encryption-and-MAC</figcaption>
 </figure>
 <p>E&amp;M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把密钥，整体输出也是由密文拼接MAC构成。</p>
 <p>接收方先解密，然后对解密得到的明文做MAC校验，应当与收到的MAC相同。</p>
 <h1 id="mtemac-then-encryption"><span class="header-section-number">3</span> MtE(mac-then-encryption)</h1>
 <figure>
-<img src="/files/authenticated_encryption_mte.png" alt="MAC-then-Encryption" /><figcaption>MAC-then-Encryption</figcaption>
+<img src="/files/Authenticated_Encryption_MtE.png" alt="MAC-then-Encryption" /><figcaption>MAC-then-Encryption</figcaption>
 </figure>
 <p>MtE顾名思义，即先做MAC再做加密，MAC的输入是明文及密钥key，而加密算法的输入是明文拼接MAC的整体，MtE的输出即加密算法的输出密文。</p>
 <p>接收方先解密，然后对明文做MAC校验，应当与解密得到的MAC相同。</p>
