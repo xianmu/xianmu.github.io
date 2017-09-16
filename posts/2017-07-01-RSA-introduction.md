@@ -75,3 +75,5 @@ tags: cryptography
 
 # Benchmark
 本部分给出rsa算法的性能数据，如下图
+
+![RSA-performance](/files/rsa_performance.png)
