@@ -1,5 +1,5 @@
-# xianmu.github.io
-ATP is for personal practice.
+ATP is for personal practice involving interested topics, like cryptography,
+database, distributed systems, etc.
 
 
 

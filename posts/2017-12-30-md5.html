@@ -34,21 +34,31 @@
           <h1 id="article-title">md5</h1>
           <br />
 <div>
-<p>md5是对称密码系统的一种加密模式，它能够同时提供数据的保密性(confidentiality)，完整性(integrity)和真实性(authenticity)功能。</p>
-<p>单一的看，数据保密性通常由加密算法提供；完整性可由两类hash算法提供，即摘要算法如md5, sha-1等，另一类则是消息认证码(MAC-message authentication code)；真实性通常也由MAC提供。然而，实践中的很多情况都需要同时保证这三种性质，比如医生给病人发送电子病历，病人不希望疾病信息泄露，也不能被篡改否则无法读取，还要确认该病历的确来自该医生。</p>
-<p>既然，加密算法能够提供保密性，MAC能够提供完整性和真实性，那要实现同时提供三种性质的AEAD，是不是只要将二者结合起来使用就可以了。事实上没这么简单，尽管加密算法及MAC各自有着良好的安全性保证，但是结合之后的AEAD的安全性却不一定那么可靠。AEAD一共有以下四种经典的做法。</p>
-<h1 id="md5"><span class="header-section-number">1</span> md5</h1>
-<p>EtM即先加密再MAC，明文作为加密算法的输入，MAC的输入是加密得到的密文，加密和MAC使用相同的密钥。整体输出由密文拼接MAC构成。</p>
-<p>接受方则先验证MAC，通过验证再进行解密。</p>
-<p>IPSec中使用了该模式。</p>
-<p>EtM保证密文完整性和真实性，不会尝试解密无效密文，天然地避免了CCA攻击，同时也可以抵御Dos攻击。另一方面，由于MAC是对密文操作得到的，不反映明文任何信息，这也避免了MAC不提供保密性导致的问题。理论分析表明，EtM的安全性高于E&amp;M和MtE。</p>
-<p>注意，这里还有一个细节问题，Ferguson和Schneier在Practical Cryptography<span class="citation" data-cites="practical-cryptography">[<a href="#ref-practical-cryptography">1</a>]</span>一书中指出，MAC的输入需要包含加密时使用的initial-vector，否则攻击者可能构造MAC检测不出来的篡改。针对一个有问题的IPsec实现，他们给出了一个攻击。</p>
-<h1 id="length-extension-attack"><span class="header-section-number">2</span> length extension attack</h1>
+<p>md5是一种广泛使用的密码学hash函数，由Ronald Rivest于1992年提出。密码学hash函数主要用于完整性校验，即检测消息传输过程中是否被篡改；以及作为底层原语构造消息认证码MAC。针对md5存在多种攻击，特别是XiaoyunWang'05<span class="citation" data-cites="xiaoyunwang2005">[<a href="#ref-xiaoyunwang2005">1</a>]</span>，时至今日，MD5已经不再安全，其生成的消息摘要也只能用来做checksum检测无意的消息修改(基于MD5设计的MAC算法如HMAC-MD5暂未证实存在安全风险，但新协议也不应再使用)。</p>
+<p>本文分以下几个部分，第一部分介绍密码学hash函数的安全性定义；第二部分介绍md5算法；第三部分介绍生日攻击；第四部分介绍md5的长度扩展攻击；第五部分介绍彩虹表攻击；第六部分介绍王小云<span class="citation" data-cites="xiaoyunwang2005">[<a href="#ref-xiaoyunwang2005">1</a>]</span>的攻击；第七部分介绍TaoXie, DengguoFeng<span class="citation" data-cites="dengguofeng2010">[<a href="#ref-dengguofeng2010">2</a>]</span>的工作。</p>
+<h1 id="security-of-cryptographic-hash-function"><span class="header-section-number">1</span> security of cryptographic hash function</h1>
+<p>密码学hash函数的安全性由其抗碰撞性(collision resistance)衡量。准确的说，密码学安全的hash函数要求，不存在多项式复杂度的算法找出hash函数的一个碰撞。实际上，由于密码学hash函数输入通常是任意长度而输出是固定长度的串，由鸽巢原理，碰撞一定存在，这里只是要求碰撞难以找到即可。</p>
+<p>密码学hash函数的抗碰撞性很难达成，但是在一些场景下只需要满足更松的要求即可，为此通常进一步讲抗碰撞性分为以下三个层次：</p>
+<h2 id="collision-resistance"><span class="header-section-number">1.1</span> Collision resistance</h2>
+<p>Collision Resistance指找到<span class="math inline">\(x, x&#39;\)</span>使得<span class="math inline">\(H(x)=H(x&#39;)\)</span>，即找到hash值相等的一对输入。</p>
+<h2 id="second-preimage-resistance"><span class="header-section-number">1.2</span> Second preimage resistance</h2>
+<p>Second preimage resistance指对于任意给定的<span class="math inline">\(x\)</span>找到<span class="math inline">\(x&#39;\)</span>使得<span class="math inline">\(H(x&#39;)=H(x)\)</span>，即找到另外一个输入与给定输入有相同的hash值。</p>
+<h2 id="preimage-resistance"><span class="header-section-number">1.3</span> Preimage resistance</h2>
+<p>Preimage resistance指对于任意给定的hash值<span class="math inline">\(y\)</span>找到<span class="math inline">\(x\)</span>使得<span class="math inline">\(H(x)=y\)</span>，即找到产生某个hash值的一个输入。</p>
+<p>从密码学hash函数的设计角度来讲，显然collision resistance是最难达成的目标。由定义也不难看出，如果一个hash函数是collision resistant的，则它也是second preimage resistant的。同样的，如果hash函数是second preimage resistant的，那它也是preimage resistant的。</p>
+<h1 id="md5"><span class="header-section-number">2</span> md5</h1>
+<p>md5对任意长度输入产生一个128bit的摘要输出，算法过程如下：</p>
+<h1 id="birthday-attack"><span class="header-section-number">3</span> birthday attack</h1>
+<p>生日攻击是一种通用攻击方法，任何有随机性要求的密码学工具都能基于此构造攻击，其原理基于生日悖论。假设，这就是生日悖论。</p>
+<h1 id="length-extension-attack"><span class="header-section-number">4</span> length extension attack</h1>
 <p>E&amp;M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把密钥，整体输出也是由密文拼接MAC构成。</p>
 <h1 id="bibliography" class="unnumbered">References</h1>
 <div id="refs" class="references">
-<div id="ref-practical-cryptography">
-<p>[1] N. Ferguson, B. Schneier, <strong>Practical cryptography</strong>, Wiley New York, 2003.</p>
+<div id="ref-xiaoyunwang2005">
+<p>[1] X. Wang, H. Yu, <strong>How to break md5 and other hash functions</strong>, Advances in Cryptology-Lecture Notes in Computer Science. (2005) 19–35.</p>
+</div>
+<div id="ref-dengguofeng2010">
+<p>[2] T. Xie, D. Feng, <strong>Construct md5 collisions using just a single block of message</strong>, (2010).</p>
 </div>
 </div>
 
