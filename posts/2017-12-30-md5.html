@@ -47,12 +47,20 @@
 <p>Preimage resistance指对于任意给定的hash值<span class="math inline">\(y\)</span>找到<span class="math inline">\(x\)</span>使得<span class="math inline">\(H(x)=y\)</span>，即找到产生某个hash值的一个输入。</p>
 <p>从密码学hash函数的设计角度来讲，显然collision resistance是最难达成的目标。由定义也不难看出，如果一个hash函数是collision resistant的，则它也是second preimage resistant的。同样的，如果hash函数是second preimage resistant的，那它也是preimage resistant的。</p>
 <h1 id="md5"><span class="header-section-number">2</span> md5</h1>
-<p>md5对任意长度输入产生一个128bit的摘要输出，算法过程如下：</p>
+<p>md5对任意长度输入产生一个128bit的摘要输出，算法过程如下。</p>
+<ol type="1">
+<li><p>Padding: padding将输入填充为若干以512bit长度的块，如下图，即先补一个1bit的1，后续填充足够数量的0，最后64bit填上padding前的消息长度模<span class="math inline">\(2^64\)</span>的值。</p></li>
+<li><p>512bit的块处理：将512bit的块分成4个128bit的小块进行处理。</p></li>
+<li><p>128bit的块处理：将128bit的块分成4个32bit的小块进行处理，如下图，图中ABCD都是32bit，是算法的内部状态，初值为一组常数，<span class="math inline">\(M_i\)</span>为原消息切分后的32bit小块，<span class="math inline">\(K_i\)</span>是一组常数，<span class="math inline">\(&lt;&lt;&lt;_s\)</span>表示循环左移<span class="math inline">\(s\)</span>-bit。</p></li>
+</ol>
+<figure>
+<img src="/files/MD5_algorithm_wiki.png" alt="md5-main-algorithm" /><figcaption>md5-main-algorithm</figcaption>
+</figure>
 <h1 id="birthday-attack"><span class="header-section-number">3</span> birthday attack</h1>
 <p>生日攻击是一种通用攻击方法，任何有随机性要求的密码学工具都能基于此构造攻击，其原理基于生日悖论。假设，这就是生日悖论。</p>
 <h1 id="length-extension-attack"><span class="header-section-number">4</span> length extension attack</h1>
 <p>E&amp;M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把密钥，整体输出也是由密文拼接MAC构成。</p>
-<h1 id="bibliography" class="unnumbered">References</h1>
+<h1 id="chosen-prefix-collisions" class="unnumbered">chosen-prefix collisions</h1>
 <div id="refs" class="references">
 <div id="ref-xiaoyunwang2005">
 <p>[1] X. Wang, H. Yu, <strong>How to break md5 and other hash functions</strong>, Advances in Cryptology-Lecture Notes in Computer Science. (2005) 19–35.</p>
