@@ -57,9 +57,14 @@
 <img src="/files/MD5_algorithm_wiki.png" alt="md5-main-algorithm" /><figcaption>md5-main-algorithm</figcaption>
 </figure>
 <h1 id="birthday-attack"><span class="header-section-number">3</span> birthday attack</h1>
-<p>生日攻击是一种通用攻击方法，任何有随机性要求的密码学工具都能基于此构造攻击，其原理基于生日悖论。假设，这就是生日悖论。</p>
+<p>生日攻击是一种通用攻击方法，任何有随机性要求的密码学工具都能基于此构造攻击，其原理基于生日悖论。生日悖论指这样一个与直觉不符的结论，假定每个人的生日为一年365天中任一天是等概率的，那么23个人中有两个人同一天生日的概率就达到50%了，这一概率达到99%也只需要57个人。这一概率计算不复杂，先算其对立事件，即所有人生日不同的概率为，然后用1减去，所以，<span class="math inline">\(n\)</span>个人中有两个人生日同一天的概率为 <span class="math display">\[ p(n)=1-\frac{365*364...*(365-n+1)}{365^n} \]</span></p>
+<p>结果如图：</p>
+<figure>
+<img src="/files/Birthday_Paradox.png" alt="birthday-paradox" /><figcaption>birthday-paradox</figcaption>
+</figure>
+<p>更一般的，假定有独立同分布的随机变量<span class="math inline">\(r_1, r_2,...,r_n\in U\)</span>，则当<span class="math inline">\(n=1.2\times |U|^{1/2}\)</span>，<span class="math inline">\(Pr[\exists i\neq j: r_i=r_j]\ge 1/2\)</span>。</p>
 <h1 id="length-extension-attack"><span class="header-section-number">4</span> length extension attack</h1>
-<p>E&amp;M即同时做加密和MAC，加密算法及MAC的输入是明文和同一把密钥，整体输出也是由密文拼接MAC构成。</p>
+<p>一些系统错误使用md5或者sha1来生成MAC，具体做法是<span class="math inline">\(H(secret||message)\)</span>，此方法易受到长度扩展攻击。所谓长度扩展攻击，指在知道<span class="math inline">\(message\)</span>，<span class="math inline">\(H(secret||message)\)</span>和<span class="math inline">\(secret||message\)</span>长度的情况下，可以构造出合法的<span class="math inline">\(H(secret||message||append)\)</span>。由前所述md5的算法过程不难看出，md5是由消息不断迭代改变其内部状态最终得到结果。反过来，在知道<span class="math inline">\(secret||message\)</span>长度的情况下，从最终输出倒推回去也能够得到padding前的内部状态，在此基础上继续迭代想要附加的消息继续处理即可得到扩展后的消息<span class="math inline">\(secret||message||append\)</span>的md5值。消息扩展能够攻击那些支持参数覆盖的协议，例如HTTP请求的参数，假设原请求参数为&quot;count=10&amp;lat=37.351&amp;user_id=1&amp;long=-119.827&amp;waffle=eggo&quot;，攻击者可以利用长度扩展攻击的得到&quot;count=10&amp;lat=37.351&amp;user_id=1&amp;long=-119.827&amp;waffle=eggo&amp;waffle=liege&quot;，由于HTTP支持参数覆盖，waffle的值变为liege。</p>
 <h1 id="chosen-prefix-collisions" class="unnumbered">chosen-prefix collisions</h1>
 <div id="refs" class="references">
 <div id="ref-xiaoyunwang2005">
