@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>commutative encryption</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=http://chaoxuprime.com/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Pauca Sed Matura</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">commutative encryption</h1>
+          <br />
+<div>
+<h1 id="commutative-encryption"><span class="header-section-number">1</span> commutative encryption</h1>
+<p>An encryption algorithm is commutative if</p>
+<p><span class="math display">\[ E_{k_1}(E_{k_2}(m)) = E_{k_2}(E_{k_1}(m)) \]</span></p>
+<p>Also, we can easily figure out that</p>
+<p><span class="math display">\[ D_{k_1}(D_{k_2}(E_{k_1}(E_{k_2}(m))) = m \]</span></p>
+<p>(Does probabilistic commutative encryption exist? Sorry, I do not know anything about that.)</p>
+<p>Most symmetric encryption schemes (such as DES and AES) are not commutative.</p>
+<h1 id="sra"><span class="header-section-number">2</span> SRA</h1>
+<p>SRA<span class="citation" data-cites="shamir1981mental">[<a href="#ref-shamir1981mental">1</a>]</span>(stands for Shamir, Rivest and Adleman. Yes, the creators of RSA crypto-system) is a classic communicative encryption.</p>
+<p>Suppose Alice and Bob share two large primes <span class="math inline">\(p, q\)</span> and calculate the same semi-prime <span class="math inline">\(n=pq\)</span>. Alice generates her encryption key <span class="math inline">\(e_1\)</span> and decryption key <span class="math inline">\(d_1\)</span> such that <span class="math inline">\(e_1 d_1\equiv 1 (mod \ \phi(n))\)</span>. Bob generates his encryption key <span class="math inline">\(e_2\)</span> and decryption key <span class="math inline">\(d_2\)</span> such that <span class="math inline">\(e_2 d_2\equiv 1 (mod \ \phi(n))\)</span>. Then decryption with <span class="math inline">\(d_1, d_2\)</span> can be out of the encryption order with <span class="math inline">\(e_1, e_2\)</span>. That is the SRA commutative encryption.</p>
+<p>SRA is very like RSA except that it is symmmetric as the encryption keys <span class="math inline">\(e_1, e_2\)</span> should be kept private, while RSA is a public-key cryptosystem.</p>
+<h1 id="pohlig-hellman-exponential-cipher"><span class="header-section-number">3</span> Pohlig-Hellman exponential cipher</h1>
+<p>Pohlig-Hellman exponential cipher is another communicative encryption scheme. However, it is also very much like SRA. Remind that SRA uses a composite modulus <span class="math inline">\(n=pq\)</span>, while Pohlig-Hellman uses a prime one. Like SRA, both encryption key and decryption key should be kept secret.</p>
+<p>The security of Pohlig-Hellman is based on the discrete logarithm problem, so that you should make sure the prime modulus <span class="math inline">\(p\)</span> is large enough, and <span class="math inline">\(\phi(p)=p-1\)</span> have as few small factors as possible(a simple method: choose <span class="math inline">\(p\)</span> such that <span class="math inline">\((p-1)/2\)</span> is also a prime).</p>
+<p>Pohlig-Hellman has very poor performance as the modulus is always very large, such as 2048-bit. In the other hand, it is a deterministic scheme which means it is not semantically-secure(recall that deterministic encryption can never be IND-CPA secure). So that, Pohlig-Hellman is rare in practice.</p>
+<h1 id="mental-poker"><span class="header-section-number">4</span> mental poker</h1>
+<p>Mental poker<span class="citation" data-cites="shamir1981mental">[<a href="#ref-shamir1981mental">1</a>]</span> asks that can two dishonest players play a fair game online without trusted third party.</p>
+<p>Take the following example:</p>
+<p>Alice and Bob want to play mental poker,</p>
+<ol type="1">
+<li><p>Both Alice and Bob hold 5 hand randomly choosed from a deck of cards (totally 52 cards) provided one of them is honest</p></li>
+<li><p>Neither Alice nor Bob can control what cards they each will get</p></li>
+<li><p>None of them can capture any information about the other one's hand</p></li>
+</ol>
+<p>SRA descripted above is the first solution targeting this problem in 1980.</p>
+<p>Beyond the encryption and decryption keys, suppose that Alice and Bob share dinstinct messages <span class="math inline">\(M_1, M_2, ..., M_52\)</span> denote the deck of cards.</p>
+<ol type="1">
+<li><p>Alice encrypts the deck, <span class="math inline">\(C_i=E_{k_1}(M_i), 1 \leq i \leq 52\)</span>, randomly permutes it and sends the ciphertexts to Bob</p></li>
+<li><p>Bob randomly picks 5 as Alice's hand and sends it back to Alice who can decrypt it</p></li>
+<li><p>Bob randomly picks another 5 as as his own hand, to get the plain cards, Bob encrypts the ciphertext with his own encryption key and sends them to Alice who will decrypt the double ciphered message and send the partial decrypted cards back again. Finally, Bob decrypts the ciphertext and get his hand cards.</p></li>
+</ol>
+<p>Because SRA is commutative, they both will get the right cards. In the other hand, since SRA is deterministic, Alice and Bob can easily find dishonest duplicate cards.</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-shamir1981mental">
+<p>[1] A. Shamir, R.L. Rivest, L.M. Adleman, Mental poker, in: The Mathematical Gardner, Springer, 1981: pp. 37–43.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: cryptography. <!--<a href="/posts/2018-09-19-commutative-encryption.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Template copy from <a href="http://chaoxuprime.com">ChaoXu</a>.</footer>
+
+    </body>
+</html>
+
+</html>
