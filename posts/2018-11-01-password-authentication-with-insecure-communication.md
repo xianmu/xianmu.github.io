@@ -41,17 +41,15 @@ For the $i$-th authentication, the messages could be collected include $h^{j}(x)
 
 This method has an important robustness property against crash attack. Suppose that the server restarts before flushing the novel hash value into disk, the client has to transmit the previous message for a second time which may have been recorded by the evasdropper. With Lamport81[@lamport1981password], the server can accept subsequent passwords by repeating hashing and verification until success, and the client needs not to send a used value.
 
+Maybe you will find a subtle attack just like me. The attacker can hijack all the communication and impersonate the client with hijacked messages. Actually, this is a concrete example of evasdropping. And what's more important, authentication only is not enough for protecting your communication.
+
 # practical considerations
 
-1. How to choose a new password when the limit 1000 is reached.
+1. How to distribute a new password when the limit 1000 is reached.
 
-2. Security, the attacker can hijack all the communication and impersonate the client with hijacked messages.
+2. What proper value should the limit choose. Client generates hash value each time, maybe he can precompute all the values. 
 
-3. Efficiency, client generates hash value each time, maybe he can precompute all the values. What proper value should the limit choose.
+3. The server has to refresh the stored value every time.
 
-4. The server has to refresh the stored value every time.
-
-5. The client has to get a memory of what values have been transmitted even after his death and reborn.
-
-6. Privacy, the attacker can recognize the client, this may not be a problem.
+4. The client has to get a memory of what values have been transmitted even after his death and reborn.
 
