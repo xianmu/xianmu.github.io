@@ -3,7 +3,7 @@ title: password authentication with insecure communication
 tags: security
 ---
 
-This post is a reading notes of Lamport81[@lamport1981password], better to check out the origin paper for more details.
+This post is a reading note of Lamport81[@lamport1981password], better to check out the origin paper for more details.
 
 # the problem
 
