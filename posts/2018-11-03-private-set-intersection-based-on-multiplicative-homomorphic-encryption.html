@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>private set intersection based on multiplicative homomorphic encryption</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=http://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">private set intersection based on multiplicative homomorphic encryption</h1>
+          <br />
+<div>
+<h1 id="the-problem"><span class="header-section-number">1</span> the problem</h1>
+<p>Let's invite our old friends, Alice and Bob. Suppose that they hold a set of elements respectively, and they would like to determine the intersection while keeping the other elements in private from each other. This is the so-called private set intersection(PSI) problem.</p>
+<p>A lot of protocols have been proposed to solve PSI, hash-based, GC-based, polynomial interpolation-based, blind signature-based etc. This post explains the solution based on multiplicative homomorphic encryption. (Sorry, I have not found the original paper in literature so far.)</p>
+<h1 id="multiplicative-homomorphism"><span class="header-section-number">2</span> multiplicative homomorphism</h1>
+<p>Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example. For RSA, we have <span class="math inline">\(E(m_1\mul m_2) = (m_1m_2)^e mod n = m_1^em_2^e=E(m_1)\mul E(m_2)\)</span>. This is the multiplicative homomorphism of textbook RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to a cloud without revealing the plaintext <span class="math inline">\(m_1, m_2\)</span>.</p>
+<p>Additive homomorphism is similar. If a cryptosystem simultaneously holds additive and multiplicative homomorphism, it is fully homomorphic, which is complete for all computable functions theoretically.</p>
+<h1 id="the-psi-scheme"><span class="header-section-number">3</span> the PSI scheme</h1>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-03-private-set-intersection-based-on-multiplicative-homomorphic-encryption.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
