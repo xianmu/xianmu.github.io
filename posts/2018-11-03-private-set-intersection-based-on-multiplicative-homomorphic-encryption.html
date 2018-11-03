@@ -19,7 +19,7 @@
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
           })();
           </script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=http://xianmu.github.io/mathjax_conf.js">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
         </script>
         <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="stylesheet" href="/css/default.css" />
@@ -38,9 +38,21 @@
 <p>Let's invite our old friends, Alice and Bob. Suppose that they hold a set of elements respectively, and they would like to determine the intersection while keeping the other elements in private from each other. This is the so-called private set intersection(PSI) problem.</p>
 <p>A lot of protocols have been proposed to solve PSI, hash-based, GC-based, polynomial interpolation-based, blind signature-based etc. This post explains the solution based on multiplicative homomorphic encryption. (Sorry, I have not found the original paper in literature so far.)</p>
 <h1 id="multiplicative-homomorphism"><span class="header-section-number">2</span> multiplicative homomorphism</h1>
-<p>Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example. For RSA, we have <span class="math inline">\(E(m_1\mul m_2) = (m_1m_2)^e mod n = m_1^em_2^e=E(m_1)\mul E(m_2)\)</span>. This is the multiplicative homomorphism of textbook RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to a cloud without revealing the plaintext <span class="math inline">\(m_1, m_2\)</span>.</p>
+<p>Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example, for two message <span class="math inline">\(m_1, m_2\)</span>, we have <span class="math inline">\(E(m_1m_2) = (m_1m_2)^e\ mod\ n = m_1^em_2^e\ mod\ n =E(m_1)E(m_2)\)</span>. This is the multiplicative homomorphism of RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to cloud without revealing the plaintext <span class="math inline">\(m_1, m_2\)</span>.</p>
 <p>Additive homomorphism is similar. If a cryptosystem simultaneously holds additive and multiplicative homomorphism, it is fully homomorphic, which is complete for all computable functions theoretically.</p>
 <h1 id="the-psi-scheme"><span class="header-section-number">3</span> the PSI scheme</h1>
+<p>In this part, we describe the multiplicative homomorphic scheme for PSI in detail. Firstly, Bob generates his RSA key pair <span class="math inline">\(PK={e,n}, SK={d,n}\)</span> and distributes <span class="math inline">\(PK\)</span> to Alice. Then Alice and Bob execute a secure protocol that determines whether their elements <span class="math inline">\(x\)</span>, <span class="math inline">\(y\)</span> are equal.</p>
+<p>Let's have a close look on the secure comparison protocol.</p>
+<p>Alice------------------------------------Bob</p>
+<p><span class="math inline">\(M_1=E(r)H(x)\)</span>-------------------------&gt;<span class="math inline">\(M_1\)</span></p>
+<p><span class="math inline">\(N_1\)</span>&lt;----------------------------------<span class="math inline">\(N_1=D(M_1)=rD(H(x))\)</span></p>
+<p><span class="math inline">\(N_2\)</span>&lt;----------------------------------<span class="math inline">\(N_2=H(D(H(y)))\)</span></p>
+<p><span class="math inline">\(M_2=H(N_1/r)=H(D(H(x)))\)</span></p>
+<p><span class="math inline">\(N_2\stackrel{?}{=}M_2\)</span>----------------&gt;</p>
+<p><span class="math inline">\(r\)</span> is a random number chose by Alice, <span class="math inline">\(H\)</span> is a cryptographically secure hash function. Apparently, <span class="math inline">\(M_2=N_2\)</span> is equivalent to <span class="math inline">\(x=y\)</span> given that <span class="math inline">\(H\)</span> is collision resistant.</p>
+<p>To solve PSI, Alice and Bob need to execute the above protocol for each element pair of their input.</p>
+<h1 id="complexity"><span class="header-section-number">4</span> complexity</h1>
+<p>Alice and Bob have to check the equivalence of all the pairs, and this takes <span class="math inline">\(O(n^2)\)</span> runs of the protocol which consumes two round of networking each time.</p>
 
 </div>
 <div class="hide-on-print">
