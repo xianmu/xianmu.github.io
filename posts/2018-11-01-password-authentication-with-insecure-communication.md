@@ -19,7 +19,7 @@ Among these vulnerabilities, the 3rd one cannot be prevented thoroughly by the p
 
 # the solution
 
-Easily to figure out the key constraints, 
+Easy to figure out the key constraints, 
 
 1. the server can complete the authentication with the stored and transmitted values;
 
