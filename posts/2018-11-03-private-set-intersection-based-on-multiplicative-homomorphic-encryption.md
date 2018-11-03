@@ -11,9 +11,25 @@ A lot of protocols have been proposed to solve PSI, hash-based, GC-based, polyno
 
 # multiplicative homomorphism
 
-Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example. For RSA, we have $E(m_1\mul m_2) = (m_1m_2)^e mod n = m_1^em_2^e=E(m_1)\mul E(m_2)$. This is the multiplicative homomorphism of textbook RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to a cloud without revealing the plaintext $m_1, m_2$.
+Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example, for two message $m_1, m_2$, we have $E(m_1m_2) = (m_1m_2)^e\ mod\ n = m_1^em_2^e\ mod\ n =E(m_1)E(m_2)$. This is the multiplicative homomorphism of RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to cloud without revealing the plaintext $m_1, m_2$.
 
 Additive homomorphism is similar. If a cryptosystem simultaneously holds additive and multiplicative homomorphism, it is fully homomorphic, which is complete for all computable functions theoretically.
 
 # the PSI scheme
+
+In this part, we describe the multiplicative homomorphic scheme for PSI in detail. Firstly, Bob generates his RSA key pair $PK={e,n}, SK={d,n}$ and distributes $PK$ to Alice. Then Alice and Bob execute a secure comparison protocol that determines whether their elements $x$, $y$ are equal.
+
+Let's have a close look on the secure comparison protocol.
+
+Alice-------------------Bob
+
+$M_1=E(r)H(x)$----------->$M_1$
+
+$N_1$<-------------------$N_1=D(M_1)=rD(H(x))$
+
+$N_2$<-------------------$N_2=H(D(H(y)))$
+
+$M_2=H(N_1/r)=H(D(H(x)))$
+
+$N_2\stackrel{?}{=}=M_2$---------------->
 
