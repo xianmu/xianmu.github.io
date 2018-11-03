@@ -17,19 +17,26 @@ Additive homomorphism is similar. If a cryptosystem simultaneously holds additiv
 
 # the PSI scheme
 
-In this part, we describe the multiplicative homomorphic scheme for PSI in detail. Firstly, Bob generates his RSA key pair $PK={e,n}, SK={d,n}$ and distributes $PK$ to Alice. Then Alice and Bob execute a secure comparison protocol that determines whether their elements $x$, $y$ are equal.
+In this part, we describe the multiplicative homomorphic scheme for PSI in detail. Firstly, Bob generates his RSA key pair $PK={e,n}, SK={d,n}$ and distributes $PK$ to Alice. Then Alice and Bob execute a secure protocol that determines whether their elements $x$, $y$ are equal.
 
 Let's have a close look on the secure comparison protocol.
 
-Alice-------------------Bob
+Alice------------------------------------Bob
 
-$M_1=E(r)H(x)$----------->$M_1$
+$M_1=E(r)H(x)$------------------------->$M_1$
 
-$N_1$<-------------------$N_1=D(M_1)=rD(H(x))$
+$N_1$<----------------------------------$N_1=D(M_1)=rD(H(x))$
 
-$N_2$<-------------------$N_2=H(D(H(y)))$
+$N_2$<----------------------------------$N_2=H(D(H(y)))$
 
 $M_2=H(N_1/r)=H(D(H(x)))$
 
-$N_2\stackrel{?}{=}=M_2$---------------->
+$N_2\stackrel{?}{=}M_2$---------------->
 
+$r$ is a random number chose by Alice, $H$ is a cryptographically secure hash function. Apparently, $M_2=N_2$ is equivalent to $x=y$ given that $H$ is collision resistant.
+
+To solve PSI, Alice and Bob need to execute the above protocol for each element pair of their input.
+
+# complexity 
+
+Alice and Bob have to check the equivalence of all the pairs, and this takes $O(n^2)$ runs of the protocol which consumes two round of networking each time.
