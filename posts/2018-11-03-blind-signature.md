@@ -19,8 +19,4 @@ Electronic voting.
 
 In the paper, Chaum only presented an abstract scheme, while this part demonstrates the well-known RSA-based blind signature which is an actual example of it.
 
-$m'=mr^e\ mod\ n$
-
-blind signature, $Sign(m')={m'}^d\ mod\ n=m^dr\ mod\ n$
-
-unblinded signature, $Sign(m)=Sign(m')r^{-1}\ mod\ n$
+![RSA blind signing protocol[@diffie-hellman1976]](/files/rsa_blind_signature.PNG)
