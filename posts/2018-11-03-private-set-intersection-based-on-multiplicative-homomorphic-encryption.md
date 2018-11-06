@@ -21,17 +21,8 @@ In this part, we describe the multiplicative homomorphic scheme for PSI in detai
 
 Let's have a close look on the secure comparison protocol.
 
-Alice------------------------------------Bob
+![Blind RSA-based PSI Protocol with linear complexity[@de2010practical]](/files/rsa_blind_signature_psi.PNG)
 
-$M_1=E(r)H(x)$------------------------->$M_1$
-
-$N_1$<----------------------------------$N_1=D(M_1)=rD(H(x))$
-
-$N_2$<----------------------------------$N_2=H'(D(H(y)))$
-
-$M_2=H(N_1/r)=H'(D(H(x)))$
-
-$N_2\stackrel{?}{=}M_2$---------------->
 
 $r$ is a random number chose by Alice, $H$ is a cryptographically secure hash function. Apparently, $M_2=N_2$ is equivalent to $x=y$ given that $H$ is collision resistant.
 

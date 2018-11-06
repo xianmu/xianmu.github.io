@@ -5,11 +5,11 @@ tags: cryptography
 
 # blind signature
 
-Blind signature is a form of digital signature proposed by David Chaum[@BlindSignChaum82] in 1982. With blind signature, the message keeps private on signing which is of great use in privacy-concerned situations.
+Blind signature is a form of digital signature proposed by David Chaum[@chaum1983blind] in 1982. With blind signature, the message keeps private on signing which is of great use in privacy-concerned situations.
 
 # applications
 
-
+Digital cash.
 
 Electronic voting.
 
@@ -19,4 +19,4 @@ Electronic voting.
 
 In the paper, Chaum only presented an abstract scheme, while this part demonstrates the well-known RSA-based blind signature which is an actual example of it.
 
-![RSA blind signing protocol[@diffie-hellman1976]](/files/rsa_blind_signature.PNG)
+![RSA blind signing protocol[@bellare2003one]](/files/rsa_blind_signature.PNG)
