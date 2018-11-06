@@ -1,5 +1,5 @@
 ---
-title: private set intersection based on multiplicative homomorphic encryption
+title: private set intersection based on rsa blind signature
 tags: cryptography
 ---
 
