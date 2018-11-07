@@ -1,5 +1,5 @@
 ---
-title: Yao's millionaire problem and secure multiparty computation
+title: Yao's millionaire problem
 tags: cryptography
 ---
 
