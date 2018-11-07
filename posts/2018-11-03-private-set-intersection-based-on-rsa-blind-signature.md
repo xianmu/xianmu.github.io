@@ -7,27 +7,12 @@ tags: cryptography
 
 Let's invite our old friends, Alice and Bob. Suppose that they hold a set of elements respectively, and they would like to determine the intersection while keeping the other elements in private from each other. This is the so-called private set intersection(PSI) problem.
 
-A lot of protocols have been proposed to solve PSI, hash-based, GC-based, polynomial interpolation-based, blind signature-based etc. This post explains the solution based on multiplicative homomorphic encryption. (Sorry, I have not found the original paper in literature so far.)
+# blind signature-based PSI scheme
 
-# multiplicative homomorphism
+A lot of protocols have been proposed to solve the PSI problem, hash-based, GC-based, polynomial interpolation-based, etc. This post explains the solution[@de2010practical] based on blind signature discussed in a previous post. 
 
-Homomorphism is a property provided by cryptosystems, which means a function of plaintext can be mapped into a function of ciphertext. Take textbook RSA as an example, for two message $m_1, m_2$, we have $E(m_1m_2) = (m_1m_2)^e\ mod\ n = m_1^em_2^e\ mod\ n =E(m_1)E(m_2)$. This is the multiplicative homomorphism of RSA, and this property is very helpful for privacy-preserving computation. The multiplication can be outsourced to cloud without revealing the plaintext $m_1, m_2$.
-
-Additive homomorphism is similar. If a cryptosystem simultaneously holds additive and multiplicative homomorphism, it is fully homomorphic, which is complete for all computable functions theoretically.
-
-# the PSI scheme
-
-In this part, we describe the multiplicative homomorphic scheme for PSI in detail. Firstly, Bob generates his RSA key pair $PK={e,n}, SK={d,n}$ and distributes $PK$ to Alice. Then Alice and Bob execute a secure protocol that determines whether their elements $x$, $y$ are equal.
-
-Let's have a close look on the secure comparison protocol.
+Firstly, Bob generates his RSA key pair $PK=\{e,n\}, SK=\{d,n\}$ and distributes $PK$ to Alice. The protocol is depicted in the following figure.
 
 ![Blind RSA-based PSI Protocol with linear complexity[@de2010practical]](/files/rsa_blind_signature_psi.PNG)
 
-
-$r$ is a random number chose by Alice, $H$ is a cryptographically secure hash function. Apparently, $M_2=N_2$ is equivalent to $x=y$ given that $H$ is collision resistant.
-
-To solve PSI, Alice and Bob need to execute the above protocol for each element pair of their input.
-
-# complexity 
-
-Alice and Bob have to check the equivalence of all the pairs, and this takes $O(n^2)$ runs of the protocol which consumes two round of networking each time.
+$c_i(1\leq i\leq \upsilon)$ are elements hold by client, $s_j(1\leq j\leq \omega)$are the server's, $H, H'$ are cryptographic hash functions. In step 2, client blinds her input getting $y_i$ which will then be signed by server in step 4, and in step 6, client unblinds the signature. Easy to find that, $t_i'=H'(D(H(c_i))), t_j=H'(D(H(s_j)))$, and $c_i=s_j$ if $t_i'=t_j$ given that $H,H'$ are collision-resistent and $D$ is PRP.
