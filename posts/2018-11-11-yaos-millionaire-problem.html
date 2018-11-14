@@ -34,15 +34,42 @@
           <h1 id="article-title">Yao's millionaire problem</h1>
           <br />
 <div>
-<h1 id="yaos-millionaire-problem"><span class="header-section-number">1</span> Yao's millionaire problem</h1>
-<p>In 1982, Andrew Yao proposed the millionaire problem, which discusses how could two millionaires determine which of them is richer while keeping their actual wealth private.</p>
-<h1 id="secure-multiparty-computation"><span class="header-section-number">2</span> secure multiparty computation</h1>
-<p>Secure multiparty computation(SMC, or multiparty computation-MPC, privacy-preserving computation, secure computation, secure function evaluation-SFE) is an abstract of this kind of problem. SMC asks for protocols that enable several parties collaboratively compute a function without exposing their input.</p>
-<p>More specifically, a set of parties, <span class="math inline">\(P_1, P_2, ...,P_n\)</span>, each of whom has a input <span class="math inline">\(x_i, 1\leq i \leq n\)</span>, they want to compute <span class="math inline">\(y=f(x_1, x_2, ..., x_n)\)</span> while keeping <span class="math inline">\(x_i\)</span> in private. Yao's millionaire problem is SMC with comparison as <span class="math inline">\(f\)</span>.</p>
+<p>In 1982, Andrew Yao proposed the millionaire problem<span class="citation" data-cites="yao82millionaire">[<a href="#ref-yao82millionaire">1</a>]</span>, which discussed how could two millionaires determine who is richer while keeping their actual wealth private.</p>
+<h1 id="secure-multiparty-computation"><span class="header-section-number">1</span> secure multiparty computation</h1>
+<p>Secure multiparty computation(SMC), or secure computation, secure function evaluation(SFE) is an abstract of this kind of problems. SMC asks for protocols that enable several parties collaboratively compute a function without exposing their input.</p>
+<p>More specifically, a set of parties, <span class="math inline">\(P_1, P_2, ...,P_n\)</span>, each of whom has a input <span class="math inline">\(x_i, 1\leq i \leq n\)</span>, they want to evaluate <span class="math inline">\(y=f(x_1, x_2, ..., x_n)\)</span> while keeping <span class="math inline">\(x_i\)</span> in private. Yao's millionaire problem is SMC with comparison as <span class="math inline">\(f\)</span>.</p>
+<h1 id="lin-tzeng-protocol"><span class="header-section-number">2</span> Lin-Tzeng protocol</h1>
+<p>Lots of solutions have been proposed in literature to solve the millionaire problem. We only discusses the homomorphic encryption based solution proposed by Lin and Tzeng<span class="citation" data-cites="lin2005efficient">[<a href="#ref-lin2005efficient">2</a>]</span>.</p>
+<p>The sketch of Lin-Tzeng protocol<span class="citation" data-cites="lin2005efficient">[<a href="#ref-lin2005efficient">2</a>]</span> is, firstly encoding <span class="math inline">\(x,y\)</span>(the millionaires' wealth) such that <span class="math inline">\(S_x\cap S_y\neq \emptyset \Leftrightarrow x&gt;y\)</span>, then the problem is how to determine the private set intersection of <span class="math inline">\(S_x,S_y\)</span>, which is solved by a homomorphic encryption based subprotocol.</p>
+<h2 id="encoding-and-1-encoding"><span class="header-section-number">2.1</span> 0-encoding and 1-encoding</h2>
+<p>For <span class="math inline">\(s=s_ns_{n-1}...s_0\in \{0,1\}^n\)</span>, 0-encoding of <span class="math inline">\(s\)</span> is the set <span class="math inline">\(S_s^0=\{s_ns_{n-1}...s_{i+1}1|s_i=0, 1\leq i\leq n\}\)</span>, invert the least significant bit of all prefix of <span class="math inline">\(s\)</span> tailing 0. And 1-encoding of <span class="math inline">\(s\)</span> is <span class="math inline">\(S_s^1=\{s_ns_{n-1}...s_{i}|s_i=1, 1\leq i\leq n\}\)</span>, all prefix of <span class="math inline">\(s\)</span> tailing 1. After encoding, <span class="math inline">\(x\gt y\)</span> if and only if <span class="math inline">\(S_x^1\cap S_y^0\neq \emptyset\)</span>(we skip the proof here which is trivial).</p>
+<h2 id="multiplicative-homomorphism"><span class="header-section-number">2.2</span> multiplicative homomorphism</h2>
+<p>Homomorphism is a property provided by cryptosystems, within which, the operation on plaintext can be mapped into another operation on ciphertext, <span class="math inline">\(E(x\times y)=E(x)\cdot E(y)\)</span>, so that we can outsource computation to an untrusted third party(cloud maybe). For instance, within textbook RSA, <span class="math inline">\(E(xy)=(xy)^e\ mod\ N=x^e y^e\ mod\ N=E(x)E(y)\)</span>. We can let the cloud do the multiplication while keeping the input and output in private.</p>
+<p>Additive homomorphism is quite the same. If a cryptosystem simultaneously provides additive and multiplicative homomorphism, we say it is fully homomorphic which is complete for all computable functions theoretically.</p>
+<h2 id="the-protocol"><span class="header-section-number">2.3</span> the protocol</h2>
+<ol type="1">
+<li><p>Alice sends a matrix <span class="math inline">\(T_{2\times n}\)</span> to Bob, where <span class="math inline">\(T[x_i,i]=E(1), T[\bar{x_i},i]=E(r_i)\)</span>(<span class="math inline">\(r_i\)</span> is random).</p></li>
+<li><p>On receiving <span class="math inline">\(T_{2\times n}\)</span>, Bob computes <span class="math inline">\(c_t=T[t_n,n]\cdot T[t_{n-1},n-1]...\cdot T[t_i, i]\)</span> for each <span class="math inline">\(t=t_nt_{n-1}...t_i\in S_y^0\)</span>, and chooses another <span class="math inline">\(n-|S_y^0|\)</span> random ciphertext forming a new set <span class="math inline">\(\{c_1,c_2,...,c_n\}\)</span> which will be sent back to Alice after random permutation.</p></li>
+<li><p>Alice decrypts all <span class="math inline">\(c_i\)</span>, checks whether some of them are <span class="math inline">\(1\)</span> which indicates <span class="math inline">\(x\gt y\)</span> and tells Bob the result.</p></li>
+</ol>
+<p>If Bob responds <span class="math inline">\(\{c_t\}\)</span> directly without filling another <span class="math inline">\(n-|S_y^0|\)</span> random ciphertext, <span class="math inline">\(\#0s\)</span> of <span class="math inline">\(y\)</span> is leaked.</p>
+<p>Multiplicative homomorphic cipher in the protocol can be replaced by an additive homomorphic cipher, and use <span class="math inline">\(E(0)\)</span> other than <span class="math inline">\(E(1)\)</span> simultaneously.</p>
+<h2 id="correctness-and-security"><span class="header-section-number">2.4</span> correctness and security</h2>
+<p>Because of multiplicative homomorphism, if <span class="math inline">\(D(c_t)=1\)</span>, then <span class="math inline">\(T[t_n,n],T[t_{n-1},n-1],...T[t_i, i]\)</span> are all ciphertext of <span class="math inline">\(1\)</span> with high probability, which means <span class="math inline">\(x_n=t_n,x_{n-1}=t_{n-1},...,x_i=t_i\)</span>.</p>
+<p>All messages observed by outside attackers are encrypted. Bob cannot differentiate <span class="math inline">\(E(1)\)</span> and <span class="math inline">\(E(r_i)\)</span> such that he gets no idea of <span class="math inline">\(x\)</span>. With <span class="math inline">\(\{c_t\}\)</span>, Alice also gains no information of <span class="math inline">\(y\)</span> if she follows the protocol.</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-yao82millionaire">
+<p>[1] A.C. Yao, Protocols for secure computations, in: Foundations of Computer Science, 1982, Sfcs’08. 23rd Annual Symposium on, IEEE, 1982: pp. 160–164.</p>
+</div>
+<div id="ref-lin2005efficient">
+<p>[2] H.-Y. Lin, W.-G. Tzeng, An efficient solution to the millionaires’ problem based on homomorphic encryption, in: International Conference on Applied Cryptography and Network Security, Springer, 2005: pp. 456–466.</p>
+</div>
+</div>
 
 </div>
 <div class="hide-on-print">
-<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-04-yaos-millionaire-problem.md">Source</a>.--></div>
+<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-11-yaos-millionaire-problem.md">Source</a>.--></div>
 
 <!--    <div id="disqus_thread"></div>
     <script type="text/javascript">

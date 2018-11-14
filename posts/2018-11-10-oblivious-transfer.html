@@ -34,12 +34,26 @@
           <h1 id="article-title">oblivious transfer</h1>
           <br />
 <div>
-<h1 id="oblivious-transfer"><span class="header-section-number">1</span> oblivious transfer</h1>
 <p>Oblivious transfer(OT) is a crypto primitive which let Alice transfer one of many messages to Bob, such that the transfered message remains oblivious to Alice and the other messages keeps private from Bob.</p>
+<h1 id="oblivious-transfer"><span class="header-section-number">1</span> 1-2 oblivious transfer</h1>
+<p>Suppose Alice possesses two message <span class="math inline">\(m_0, m_1\)</span>, Bob wishes to receive one of them satisfying the privacy constraints, Bob gets no information of the other message and Alice does not know which is transmitted to Bob.</p>
+<p>Denote Alice's RSA key pair as <span class="math inline">\(PK=\{e, N\}, SK=\{d, N\}\)</span>, <span class="math inline">\(m_b\)</span>(<span class="math inline">\(b\in \{0, 1\}\)</span>) is the message Bob wishes to receive, <span class="math inline">\(i\in \{0, 1\}\)</span>.</p>
+<p>The following table demonstrates the protocol by Even, Goldreich and Lempel<span class="citation" data-cites="even1985randomized">[<a href="#ref-even1985randomized">1</a>]</span>, which is from <a href="https://en.wikipedia.org/wiki/Oblivious_transfer">wiki</a>.</p>
+<figure>
+<img src="/files/egl_ot_protocol.PNG" alt="EGL OT protocol" /><figcaption>EGL OT protocol</figcaption>
+</figure>
+<p>Actually, <span class="math inline">\(m_i&#39;-k=m_i+((x_b+k^e)-x_i)^d-k\)</span>, if <span class="math inline">\(i=b\)</span>, <span class="math inline">\(m_i&#39;-k=m_b\)</span>.</p>
+<p>The EGL protocol can be easily generalized to solve 1-out-of-<span class="math inline">\(n\)</span> oblivious transfer.</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-even1985randomized">
+<p>[1] S. Even, O. Goldreich, A. Lempel, <strong>A randomized protocol for signing contracts</strong>, Communication of the ACM. 28 (1985) 637–647.</p>
+</div>
+</div>
 
 </div>
 <div class="hide-on-print">
-<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-05-oblivious-transfer.md">Source</a>.--></div>
+<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-10-oblivious-transfer.md">Source</a>.--></div>
 
 <!--    <div id="disqus_thread"></div>
     <script type="text/javascript">
