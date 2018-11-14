@@ -15,7 +15,7 @@ More specifically, a set of parties, $P_1, P_2, ...,P_n$, each of whom has a inp
 
 Lots of solutions have been proposed in literature to solve the millionaire problem. We only discusses the homomorphic encryption based solution proposed by Lin and Tzeng[@lin2005efficient].
 
-The sketch of Lin-Tzeng protocol[@lin2005efficient] is, firstly encoding $x,y$(the millionaires' wealth) such that $S_x\cap S_y\neq \emptyset \Leftrightarrow x>y$, then the problem is how to determine the private set intersection of $S_x,S_y$. A subprotocol which is based on homorphic encryption is used to solve the PSI problem.
+The sketch of Lin-Tzeng protocol[@lin2005efficient] is, firstly encoding $x,y$(the millionaires' wealth) such that $S_x\cap S_y\neq \emptyset \Leftrightarrow x>y$, then the problem is how to determine the private set intersection of $S_x,S_y$, which is solved by a homomorphic encryption based subprotocol.
 
 ## 0-encoding and 1-encoding
 
@@ -29,18 +29,18 @@ Additive homomorphism is quite the same. If a cryptosystem simultaneously provid
 
 ## the protocol
 
-Suppose that the public key pair of Alice is $\{PK, SK\}$.
-
 1. Alice sends a matrix $T_{2\times n}$  to Bob, where $T[x_i,i]=E(1), T[\bar{x_i},i]=E(r_i)$($r_i$ is random).
 
 2. On receiving $T_{2\times n}$, Bob computes $c_t=T[t_n,n]\cdot T[t_{n-1},n-1]...\cdot T[t_i, i]$ for each $t=t_nt_{n-1}...t_i\in S_y^0$, and chooses another $n-|S_y^0|$ random ciphertext forming a new set $\{c_1,c_2,...,c_n\}$ which will be sent back to Alice after random permutation.
 
-3. Alice decrypts all $c_i$ and checks whether some of them are $1$ which indicates $x\gt y$.
+3. Alice decrypts all $c_i$, checks whether some of them are $1$ which indicates $x\gt y$ and tells Bob the result.
 
 If Bob responds $\{c_t\}$ directly without filling another $n-|S_y^0|$ random ciphertext, $\#0s$ of $y$ is leaked.
+
+Multiplicative homomorphic cipher in the protocol can be replaced by an additive homomorphic cipher, and use $E(0)$ other than $E(1)$ simultaneously.
 
 ## correctness and security
 
 Because of multiplicative homomorphism, if $D(c_t)=1$, then $T[t_n,n],T[t_{n-1},n-1],...T[t_i, i]$ are all ciphertext of $1$ with high probability, which means $x_n=t_n,x_{n-1}=t_{n-1},...,x_i=t_i$.
 
-All messages observed by outside attackers are encrypted.
+All messages observed by outside attackers are encrypted. Bob cannot differentiate $E(1)$ and $E(r_i)$ such that he gets no idea of $x$. With $\{c_t\}$, Alice also gains no information of $y$ if she follows the protocol.

@@ -13,14 +13,7 @@ Denote Alice's RSA key pair as $PK=\{e, N\}, SK=\{d, N\}$, $m_b$($b\in \{0, 1\}$
 
 The following table demonstrates the protocol by Even, Goldreich and Lempel[@even1985randomized], which is from [wiki](https://en.wikipedia.org/wiki/Oblivious_transfer).
 
-|                            Alice |            | Bob                           |
-| -------------------------------: | :--------: | :---------------------------- |
-|       generate random $x_0, x_1$ |  ------->  | $x_0, x_1$                    |
-|                                  |            | generate random $k$           |
-|                       $\upsilon$ |  <-------  | $\upsilon=(x_b+k^e)\ mod\ N$  |
-| $k_i=(\upsilon - x_i)^d\ mod\ N$ |            |                               |
-|                   $m_i'=m_i+k_i$ |  ------->  | $m_0',m_1'$                   |
-|                                  |            | $m_b=m_b'-k$                  |
+![EGL OT protocol](/files/egl_ot_protocol.PNG)
 
 Actually, $m_i'-k=m_i+((x_b+k^e)-x_i)^d-k$, if $i=b$, $m_i'-k=m_b$.
 
