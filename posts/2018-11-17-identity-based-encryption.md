@@ -3,7 +3,7 @@ title: Identity based cryptography
 tags: cryptography
 ---
 
-In 1984, Adi Shamir[@shamir1984identity] proposed a new cryptographic primitive, identity-based cryptosystem(IBC). However, Shamir only gave a construction of identity-based signature(IBS) rather than IBE which remained open for many years. In 2001, Boneh-Franklin[@boneh2001identity] and Cock seperately proposed their schemes of IBE. This post only talks about the BF-IBE scheme.
+In 1984, Adi Shamir[@shamir1984identity] proposed a new cryptographic primitive, identity-based cryptosystem(IBC). However, Shamir only gave a construction of identity-based signature(IBS) rather than IBE which remained open for many years. In 2001, Boneh-Franklin[@boneh2001identity] and Cock seperately proposed their schemes of IBE. This post only talks about the BF-IBE scheme. In a previous post, we talked about pairing, which is a basis of BF-IBE and you should read it at first.
 
 # motivation
 

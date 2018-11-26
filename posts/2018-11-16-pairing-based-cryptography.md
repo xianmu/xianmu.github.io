@@ -25,8 +25,12 @@ Computability:
 
 ## BDHP
 
-Bilinear Diffie-Hellman Problem (BDHP) is believed to be intractable, which means it is hard to compute $e(P,P)^{ab}$ given $P,aP,bP$.
+Bilinear Diffie-Hellman Problem (BDHP) is believed to be intractable, which means it is hard to compute $e(P,P)^{abc}$ given $<P,aP,bP,cP>$, $a,b,c\in \mathbb{Z}_q^\ast$, $P$ is a generator of $\mathbh{G}_1$.
 
 # Weil pairing
 
 In cryptography.
+
+# Tate pairing
+
+Tate pairing is another common used instantiation.
