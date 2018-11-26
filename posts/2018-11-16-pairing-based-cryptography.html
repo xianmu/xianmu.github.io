@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>pairing-based cryptography</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">pairing-based cryptography</h1>
+          <br />
+<div>
+<p>Recently, a lot of attention has been paid on how to construct cryptographic primitives using pairings, like identity-based encrytion<span class="citation" data-cites="boneh2001identity">[<a href="#ref-boneh2001identity">1</a>]</span>, one-round tripartite Diffie-Hellman<span class="citation" data-cites="joux2000one">[<a href="#ref-joux2000one">2</a>]</span>, etc. (which will be disscussed in later posts).</p>
+<p>However what is pairing?</p>
+<p>Pairing is a map, <span class="math inline">\(e:G_1\times G_2\rightarrow G_T\)</span>, where <span class="math inline">\(G_1,G_2\)</span> are both additive cyclic groups of prime order <span class="math inline">\(q\)</span>, <span class="math inline">\(G_T\)</span> is another multiplicative cyclic group of order <span class="math inline">\(q\)</span>, satisfies the following properties:</p>
+<p>Bilinearity:</p>
+<p><span class="math display">\[\forall a,b\in F_q^\ast, \forall P\in G_1,Q\in G_2:e(aP, bQ)=e(P,Q)^{ab}\]</span></p>
+<p>Non-degeneracy:</p>
+<p><span class="math display">\[e\neq 1\]</span></p>
+<p>Computability:</p>
+<p><span class="math display">\[There\ exists\ efficient\ algorithms\ to\ compute\ e.\]</span></p>
+<h1 id="intractable-problems"><span class="header-section-number">1</span> intractable problems</h1>
+<h2 id="bdhp"><span class="header-section-number">1.1</span> BDHP</h2>
+<p>Bilinear Diffie-Hellman Problem (BDHP) is believed to be intractable, which means it is hard to compute <span class="math inline">\(e(P,P)^{abc}\)</span> given <span class="math inline">\(&lt;P,aP,bP,cP&gt;\)</span>, <span class="math inline">\(a,b,c\in \mathbb{Z}_q^\ast\)</span>, <span class="math inline">\(P\)</span> is a generator of <span class="math inline">\(\mathbh{G}_1\)</span>.</p>
+<h1 id="weil-pairing"><span class="header-section-number">2</span> Weil pairing</h1>
+<p>In cryptography.</p>
+<h1 id="tate-pairing"><span class="header-section-number">3</span> Tate pairing</h1>
+<p>Tate pairing is another common used instantiation.</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-boneh2001identity">
+<p>[1] D. Boneh, M. Franklin, Identity-based encryption from the weil pairing, in: Annual International Cryptology Conference, Springer, 2001: pp. 213–229.</p>
+</div>
+<div id="ref-joux2000one">
+<p>[2] A. Joux, A one round protocol for tripartite diffie-hellman, in: International Algorithmic Number Theory Symposium, Springer, 2000: pp. 385–393.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: cryptography. <!--<a href="/posts/2018-11-16-pairing-based-cryptography.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>

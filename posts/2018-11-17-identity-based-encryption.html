@@ -34,7 +34,7 @@
           <h1 id="article-title">Identity based cryptography</h1>
           <br />
 <div>
-<p>In 1984, Adi Shamir<span class="citation" data-cites="shamir1984identity">[<a href="#ref-shamir1984identity">1</a>]</span> proposed a new cryptographic primitive, identity-based cryptosystem(IBC). However, Shamir only gave a construction of identity-based signature(IBS) rather than IBE which remained open for many years. In 2001, Boneh-Franklin<span class="citation" data-cites="boneh2001identity">[<a href="#ref-boneh2001identity">2</a>]</span> and Cock seperately proposed their schemes of IBE. This post only talks about the BF-IBE scheme.</p>
+<p>In 1984, Adi Shamir<span class="citation" data-cites="shamir1984identity">[<a href="#ref-shamir1984identity">1</a>]</span> proposed a new cryptographic primitive, identity-based cryptosystem(IBC). However, Shamir only gave a construction of identity-based signature(IBS) rather than IBE which remained open for many years. In 2001, Boneh-Franklin<span class="citation" data-cites="boneh2001identity">[<a href="#ref-boneh2001identity">2</a>]</span> and Cock seperately proposed their schemes of IBE. This post only talks about the BF-IBE scheme. In a previous post, we talked about pairing, which is a basis of BF-IBE and you should read it at first.</p>
 <h1 id="motivation"><span class="header-section-number">1</span> motivation</h1>
 <p>As everyone knows, PKC(public key cryptography) solved the problem of symmetric key distribution, and PKI(public key infrastructure) solved the problem of public key distribution by introducing TTP(trusted-third party), CA for instance. Then TTP of PKI has to store large volume of certificates and the clients should acquire server's certification before authentication.</p>
 <p>While within IBE, the receiver's ID is just his public key, such that no additional resource or extra round of communication is needed for the certificates.</p>
@@ -49,13 +49,18 @@
 <ol type="1">
 <li><span class="math inline">\(Setup(\tau)\)</span>.</li>
 </ol>
-<p><span class="math inline">\(\qquad\)</span>Step 1. Generate an admissible bilinear map <span class="math inline">\(\hat{e}:G_1\times G_1\rightarrow G_2\)</span>, <span class="math inline">\(G_1, G_2\)</span> of prime order <span class="math inline">\(q\)</span>, and choose a random generator <span class="math inline">\(P\in G_1\)</span>.</p>
-<p>Step 2. Pick a random <span class="math inline">\(s\in \mathbb{Z}_q\)</span></p>
+<p>Step 1. Generate an admissible bilinear map <span class="math inline">\(\hat{e}:\mathbb{G}_1\times \mathbb{G}_1\rightarrow \mathbb{G}_2\)</span>, <span class="math inline">\(\mathbb{G}_1, \mathbb{G}_2\)</span> are of prime order <span class="math inline">\(q\)</span>, and choose a random generator <span class="math inline">\(P\in \mathbb{G}_1\)</span>.</p>
+<p>Step 2. Pick a random <span class="math inline">\(s\in \mathbb{Z}_q\)</span>, and set <span class="math inline">\(P_{pub}=sP\)</span>.</p>
+<p>Step 3. Choose cryptographic hash functions <span class="math inline">\(H_1:\{0,1\}^\ast \rightarrow \mathbb{G}_1^\ast\)</span>, <span class="math inline">\(H_2:\mathbb{G}_2\rightarrow \{0,1\}^n\)</span>.</p>
+<p>The plaintext space is <span class="math inline">\(\mathcal{M}=\{0,1\}^n\)</span>, ciphertext space is <span class="math inline">\(\mathcal{C}=\mathbb{G}_1^\ast\times\{0,1\}^n\)</span>. The public parameter is <span class="math inline">\(Param=&lt;q,\mathbb{G_1},\mathbb{G_2},\hat{e},n,P,P_{pub},H_1,H_2&gt;\)</span>. And the master key(<span class="math inline">\(MK\)</span>) is <span class="math inline">\(s\in \mathbb{Z}_q^\ast\)</span></p>
 <ol start="2" type="1">
-<li><p>Extract.</p></li>
-<li><p>Encrypt.</p></li>
-<li><p>Decrypt.</p></li>
+<li><p><span class="math inline">\(Extract(ID)\)</span>. Private key of <span class="math inline">\(ID\)</span> is <span class="math inline">\(d_{ID}=sQ_{ID}=sH_1(ID)\)</span></p></li>
+<li><p><span class="math inline">\(Encrypt(M)\)</span>. <span class="math inline">\(C=&lt;rP, M\oplus H_2(g_{ID}^r)&gt;\)</span>, where <span class="math inline">\(g_{ID}=\hat{e}(Q_{ID}, P_{pub})\)</span></p></li>
+<li><p><span class="math inline">\(Decrypt(C=&lt;U,V&gt;)\)</span>. <span class="math inline">\(M=V\oplus H_2(\hat{e}(d_{ID},U))\)</span>.</p></li>
 </ol>
+<h1 id="correctness"><span class="header-section-number">3</span> correctness</h1>
+<p><span class="math display">\[V\oplus H_2(\hat{e}(d_{ID},U))=M\oplus H_2(g_{ID}^r)\oplus H_2(\hat{e}(d_{ID},U))\]</span></p>
+<p><span class="math display">\[H_2(g_{ID}^r)\oplus H_2(\hat{e}(d_{ID},U))=H_2(\hat{e}(Q_{ID},sP)^r)\oplus H_2(\hat{e}(sQ_{ID},rP))=0^n\]</span></p>
 <h1 id="bibliography" class="unnumbered">References</h1>
 <div id="refs" class="references">
 <div id="ref-shamir1984identity">
