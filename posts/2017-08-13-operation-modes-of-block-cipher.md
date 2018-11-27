@@ -6,6 +6,7 @@ tags: cryptography
 总结常用的block cipher operation modes，本篇只包括五种基本的加密mode(ECB, CBC, CTR, CFB, OFB). 文献[@rogaway2011evaluation]比较全面地总结了block cipher的各种operation mode，包括加密，MAC，认证加密的。
 
 # 结论
+
 先上结论。
 
 |  mode |  安全 |  padding |  iv/ctr |  并行加密|  并行解密 | EP|code-size|max-enc-length|
@@ -22,10 +23,12 @@ tags: cryptography
 4. 性能，在单线程上，这几种mode没有本质差异。多线程上显然可并行的可以更快。
 
 # operation modes of block cipher
-1. 为什么需要operation mode？
+
+为什么需要operation mode？
 block cipher顾名思义，加解密单位是一个block，但应用层需要加密的明文长度可能是任意的，如何基于单block加解密的算法构造加密任意长度明文的加解密算法即operation mode所要解决的问题。
 
 ## ECB
+
 ECB是naive/trivial的做法，如下图(以下图片全部来自[wiki](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation "wiki"))。
 
 ![](/files/ECB.PNG)
@@ -70,7 +73,7 @@ CBC是应用最为广泛的mode，加解密图解如下：
 
 IV(InitialVector)必须是unpredictable的，通常使用随机数(或者CSPRNG生成的伪随机数)。IV无需保密，一般放在密文开头，一些服务为了节省带宽会由c/s两端协商同一个算法生成，需要C/S两端维护并同步这个状态。
 
-CBC的加密不可并行，解密可并行，密文某个block解密失败会导致下一个block解密也失败，都可以清晰的从图中看出。
+CBC的加密不可并行，解密可并行，密文某个block解密失败会导致下一个block解密也失败，都可以清晰的从图中看出。由于chaining，如果明文有变动，其后续所有的block的密文都需要重新生成。
 
 CBC也有padding的问题，方法与ECB一样，ciphertext stealing中不足一个block时可以steal IV的一部分。
 
@@ -100,12 +103,16 @@ CFB mode如下图所示：
 
 ### self-synchronization
 
-CFB以及下面的OFB模式是两种自同步模式，所谓自同步指如果密文缺失几个字节不影响后续解密。
+利用移位寄存器(shift register)，可以对任意block长度应用CFB mode，如[下图](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.95.21&rep=rep1&type=pdf)所示：
+
+![](/files/cfb_self_sync.PNG)
+
+并且，如果传输密文丢失几个block，待对应的几个block移出移位寄存器后，CFB重新开始正常解密，这被称为CFB的自同步(self-synchronization)特性。
 
 ## OFB
 
 OFB mode如下图所示：
 
-![OFB](/files/OFB.png)
+![](/files/OFB.png)
 
-与CFB只有一点点不同，CFB中block cipher加密的是前一个block的密文，OFB中block cipher加密的是前一个block cipher的输出，少一个与明文的异或。由于解密依赖前一个block cipher的输出而非密文，所以OFB解密不可以并行。OFB可看做是一种stream cipher，由IV和key生成随机bit流，然后与明文/密文异或(OFB的加密和解密算法完全一样)，随机bit流可以预计算。
+与CFB只有一点点不同，CFB中block cipher加密的是前一个block的密文，OFB中block cipher加密的是前一个block cipher的输出，少一个与明文的异或。由于解密依赖前一个block cipher的输出而非密文，所以OFB解密不可以并行。OFB可看做是一种stream cipher，由IV和key生成随机bit流，然后与明文/密文异或(OFB的加密和解密算法完全一样)，随机bit流可以预计算。OFB自同步与CFB相同。
