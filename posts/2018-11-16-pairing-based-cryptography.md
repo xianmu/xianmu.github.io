@@ -25,7 +25,7 @@ Computability:
 
 ## BDHP
 
-Bilinear Diffie-Hellman Problem (BDHP) is believed to be intractable, which means it is hard to compute $e(P,P)^{abc}$ given $<P,aP,bP,cP>$, $a,b,c\in \mathbb{Z}_q^\ast$, $P$ is a generator of $\mathbh{G}_1$.
+Bilinear Diffie-Hellman Problem (BDHP) is believed to be intractable, which means it is hard to compute $e(P,P)^{abc}$ given $<P,aP,bP,cP>$, $a,b,c\in \mathbb{Z}_q^\ast$, $P$ is a generator of $\mathbb{G}_1$.
 
 # Weil pairing
 
