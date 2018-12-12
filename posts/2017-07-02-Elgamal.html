@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>Elgamal</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">Elgamal</h1>
+          <br />
+<div>
+<p>前一篇讲了RSA，这一篇介绍下另一个经典的公钥系统，Elgamal。与RSA基于大数分解不同，Elgamal基于离散对数问题(DLP-Discrete Logarithm Problem)。</p>
+<h1 id="discrete-logarithm-problem"><span class="header-section-number">1</span> Discrete Logarithm Problem</h1>
+<h1 id="key-generation"><span class="header-section-number">2</span> Key Generation</h1>
+<p>假设<span class="math inline">\(G\)</span>是一个<span class="math inline">\(q\)</span>阶循环群，<span class="math inline">\(g\)</span>是其生成元。在<span class="math inline">\(Z_q^*\)</span>取一个随机值<span class="math inline">\(x\)</span>，计算<span class="math inline">\(h=g^x \pmod{q}\)</span>，公钥<span class="math inline">\(PK=\{G,g,h,q\}\)</span>，私钥<span class="math inline">\(SK=\{x\}\)</span>。</p>
+<h1 id="encryption"><span class="header-section-number">3</span> Encryption</h1>
+<p>为了加密<span class="math inline">\(m\)</span>，首先在<span class="math inline">\(Z_q^*\)</span>取一个随机值<span class="math inline">\(y\)</span>，计算<span class="math inline">\(c_1=g^y,s=h^y,c_2=m\cdot s\)</span>，输出密文<span class="math inline">\(CT=(c_1,c_2)\)</span>。</p>
+<h1 id="decryption"><span class="header-section-number">4</span> Decryption</h1>
+<p>解密比较简单，<span class="math inline">\(m=c_2/c_1^x\)</span>(因为<span class="math inline">\(s=h^y=g^{xy}=c_1^x\)</span>)。</p>
+<h1 id="intrinsic-random"><span class="header-section-number">5</span> intrinsic random</h1>
+<p>与RSA不同，Elgmal本身就是随机的，RSA则要借助于random padding实现probabilistic encryption。</p>
+<h1 id="elgamal-signature"><span class="header-section-number">6</span> Elgamal Signature</h1>
+<p>由于Elgamal没有RSA那种加解密间的对称性，上述算法不能直接用于签名，但是可以简单修改得到一个签名算法。</p>
+<p><span class="math display">\[Sign(m)=(r,s), r=g^k \pmod{q}, s=(m-xr)k^{-1}\pmod{q-1}\]</span></p>
+<p><span class="math display">\[Verify(m, (r,s))=\ g^m=?y^rr^s \pmod{q}\]</span></p>
+<h1 id="homomorphic-encryption"><span class="header-section-number">7</span> Homomorphic encryption</h1>
+<p>Elgamal本身是乘法同态的，</p>
+<p><span class="math display">\[E(m_1)E(m_2)=(c_1&#39;c_1&#39;&#39;,c_2&#39;c_2&#39;&#39;)=(g^{y_1+y_2},(m_1m_2)h^{y_1+y_2})=E(m_1m_2)\]</span></p>
+<p>使用<span class="math inline">\(g^m\)</span>作为映射函数也可以将Elgamal变成加法同态：</p>
+<p><span class="math display">\[E(m)=(c_1,c_2)=(g^y,g^m\cdot s)\]</span></p>
+<p><span class="math display">\[E(m_1)E(m_2)=(c_1&#39;c_1&#39;&#39;,c_2&#39;c_2&#39;&#39;)=(g^{y_1+y_2},g^{m_1+m_2}h^{y_1+y_2})=E(m_1+m_2)\]</span></p>
+<p>可以预先打表缓存<span class="math inline">\((m, g^m)\)</span>，解密时反查。</p>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: cryptography. <!--<a href="/posts/2017-07-02-Elgamal.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
