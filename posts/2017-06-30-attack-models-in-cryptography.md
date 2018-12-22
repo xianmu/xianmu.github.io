@@ -25,4 +25,4 @@ tags: cryptography
 
 根据攻击者能够构造密文的阶段不同，CCA又可进一步分为CCA1(Non-adaptive CCA)，CCA2(Adaptive CCA)两个模型。二者的差别在于，在CCA1中，攻击者一次性将构造好的一组密文输入解密机得到它们对应的明文；而在CCA2中，攻击者可以在前一个密文解密得到的明文基础上构造后续要解密的密文。
 
-一个实际的CCA2攻击的例子是针对PKCS#1的Bleichenbacher攻击。
+一个实际的CCA2攻击的例子是针对PKCS#1 random padding的Bleichenbacher攻击。

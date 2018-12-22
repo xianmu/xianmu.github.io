@@ -47,7 +47,7 @@
 <h1 id="选择密文攻击"><span class="header-section-number">4</span> 选择密文攻击</h1>
 <p>选择密文攻击(Chosen-Ciphertext Attack-CCA)，指攻击者能实施选择明文攻击，即能够得到任意明文对应的密文的情况下，还占据解密机(decryption oracle)从而可以构造任意密文并使用解密机解密得到其明文，据此进行密钥破解或者明文推测，当然这里要排除攻击者期望攻击的密文。与选择明文攻击类似，这里所谓占据解密机，也是指攻击者能够在不知道密钥的情况下构造任意的密文获得其明文。</p>
 <p>根据攻击者能够构造密文的阶段不同，CCA又可进一步分为CCA1(Non-adaptive CCA)，CCA2(Adaptive CCA)两个模型。二者的差别在于，在CCA1中，攻击者一次性将构造好的一组密文输入解密机得到它们对应的明文；而在CCA2中，攻击者可以在前一个密文解密得到的明文基础上构造后续要解密的密文。</p>
-<p>一个实际的CCA2攻击的例子是针对PKCS#1的Bleichenbacher攻击。</p>
+<p>一个实际的CCA2攻击的例子是针对PKCS#1 random padding的Bleichenbacher攻击。</p>
 
 </div>
 <div class="hide-on-print">

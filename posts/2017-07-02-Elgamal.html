@@ -36,23 +36,27 @@
 <div>
 <p>前一篇讲了RSA，这一篇介绍下另一个经典的公钥系统，Elgamal。与RSA基于大数分解不同，Elgamal基于离散对数问题(DLP-Discrete Logarithm Problem)。</p>
 <h1 id="discrete-logarithm-problem"><span class="header-section-number">1</span> Discrete Logarithm Problem</h1>
-<h1 id="key-generation"><span class="header-section-number">2</span> Key Generation</h1>
-<p>假设<span class="math inline">\(G\)</span>是一个<span class="math inline">\(q\)</span>阶循环群，<span class="math inline">\(g\)</span>是其生成元。在<span class="math inline">\(Z_q^*\)</span>取一个随机值<span class="math inline">\(x\)</span>，计算<span class="math inline">\(h=g^x \pmod{q}\)</span>，公钥<span class="math inline">\(PK=\{G,g,h,q\}\)</span>，私钥<span class="math inline">\(SK=\{x\}\)</span>。</p>
-<h1 id="encryption"><span class="header-section-number">3</span> Encryption</h1>
-<p>为了加密<span class="math inline">\(m\)</span>，首先在<span class="math inline">\(Z_q^*\)</span>取一个随机值<span class="math inline">\(y\)</span>，计算<span class="math inline">\(c_1=g^y,s=h^y,c_2=m\cdot s\)</span>，输出密文<span class="math inline">\(CT=(c_1,c_2)\)</span>。</p>
-<h1 id="decryption"><span class="header-section-number">4</span> Decryption</h1>
-<p>解密比较简单，<span class="math inline">\(m=c_2/c_1^x\)</span>(因为<span class="math inline">\(s=h^y=g^{xy}=c_1^x\)</span>)。</p>
-<h1 id="intrinsic-random"><span class="header-section-number">5</span> intrinsic random</h1>
+<p>对于<span class="math inline">\(q\)</span>阶乘法循环群<span class="math inline">\(G\)</span>，已知其生成元<span class="math inline">\(g\)</span>及元素<span class="math inline">\(h\)</span>，求<span class="math inline">\(x\)</span>使得<span class="math inline">\(h=g^x \pmod{q}\)</span>是困难的。</p>
+<h1 id="algorithms"><span class="header-section-number">2</span> Algorithms</h1>
+<h2 id="key-generation"><span class="header-section-number">2.1</span> Key Generation</h2>
+<p>假设<span class="math inline">\(G\)</span>是一个<span class="math inline">\(q\)</span>阶循环群，<span class="math inline">\(g\)</span>是其生成元，<span class="math inline">\(x\)</span>是<span class="math inline">\(Z_q^*\)</span>上的一个随机数，则</p>
+<p><span class="math display">\[PK=\{G,q,g,h=g^x mod\ q\}, SK=\{x\}\]</span></p>
+<h2 id="encryption"><span class="header-section-number">2.2</span> Encryption</h2>
+<p><span class="math display">\[c=&lt;c_1,c_2&gt;=&lt;g^y,m\cdot h^y&gt;\]</span></p>
+<p>其中，<span class="math inline">\(y\)</span>是<span class="math inline">\(Z_q^*\)</span>上的一个随机数。</p>
+<h2 id="decryption"><span class="header-section-number">2.3</span> Decryption</h2>
+<p><span class="math display">\[m=c_2/c_1^x\]</span></p>
+<h1 id="intrinsic-random"><span class="header-section-number">3</span> intrinsic random</h1>
 <p>与RSA不同，Elgmal本身就是随机的，RSA则要借助于random padding实现probabilistic encryption。</p>
-<h1 id="elgamal-signature"><span class="header-section-number">6</span> Elgamal Signature</h1>
+<h1 id="elgamal-signature"><span class="header-section-number">4</span> Elgamal Signature</h1>
 <p>由于Elgamal没有RSA那种加解密间的对称性，上述算法不能直接用于签名，但是可以简单修改得到一个签名算法。</p>
 <p><span class="math display">\[Sign(m)=(r,s), r=g^k \pmod{q}, s=(m-xr)k^{-1}\pmod{q-1}\]</span></p>
 <p><span class="math display">\[Verify(m, (r,s))=\ g^m=?y^rr^s \pmod{q}\]</span></p>
-<h1 id="homomorphic-encryption"><span class="header-section-number">7</span> Homomorphic encryption</h1>
+<h1 id="homomorphic-encryption"><span class="header-section-number">5</span> Homomorphic encryption</h1>
 <p>Elgamal本身是乘法同态的，</p>
 <p><span class="math display">\[E(m_1)E(m_2)=(c_1&#39;c_1&#39;&#39;,c_2&#39;c_2&#39;&#39;)=(g^{y_1+y_2},(m_1m_2)h^{y_1+y_2})=E(m_1m_2)\]</span></p>
 <p>使用<span class="math inline">\(g^m\)</span>作为映射函数也可以将Elgamal变成加法同态：</p>
-<p><span class="math display">\[E(m)=(c_1,c_2)=(g^y,g^m\cdot s)\]</span></p>
+<p><span class="math display">\[E(m)=(c_1,c_2)=(g^y,g^m\cdot h^y)\]</span></p>
 <p><span class="math display">\[E(m_1)E(m_2)=(c_1&#39;c_1&#39;&#39;,c_2&#39;c_2&#39;&#39;)=(g^{y_1+y_2},g^{m_1+m_2}h^{y_1+y_2})=E(m_1+m_2)\]</span></p>
 <p>可以预先打表缓存<span class="math inline">\((m, g^m)\)</span>，解密时反查。</p>
 
