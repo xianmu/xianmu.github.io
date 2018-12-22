@@ -93,7 +93,12 @@ h&=q_{inv}(m_1-m_2)\pmod{p}\\
 m&=m_2+hq
 \end{align}</span>
 <p>相比<span class="math inline">\(n\)</span>, <span class="math inline">\(p,q\)</span>的位数要小接近一半，模幂运算更快，解密能够加速近4倍。</p>
-<h1 id="benchmark"><span class="header-section-number">5</span> Benchmark</h1>
+<h1 id="signature"><span class="header-section-number">5</span> Signature</h1>
+<p>由于RSA加密解密算法的对称性，RSA可以直接用来做电子签名，即：</p>
+<p><span class="math inline">\(Sign(m,SK)\rightarrow s\)</span>: <span class="math display">\[ s = m^d\pmod{n} \]</span></p>
+<p><span class="math inline">\(Verify(s,PK)\rightarrow m\)</span>: <span class="math display">\[ m = s^e\pmod{n} \]</span></p>
+<p>其中<span class="math inline">\(m\)</span>是明文，<span class="math inline">\(s\)</span>是签名。</p>
+<h1 id="benchmark"><span class="header-section-number">6</span> Benchmark</h1>
 <p>本部分给出rsa算法的性能数据，如下图</p>
 <figure>
 <img src="/files/rsa_performance.png" alt="RSA-performance" /><figcaption>RSA-performance</figcaption>
