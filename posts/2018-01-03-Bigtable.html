@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>Bigtable</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">Bigtable</h1>
+          <br />
+<div>
+<p>本篇是Bigtable<span class="citation" data-cites="chang2008bigtable">[<a href="#ref-chang2008bigtable">1</a>]</span>的阅读笔记，Bigtable的单机引擎与LevelDB基本一致，本文省略单机引擎的特性。</p>
+<h1 id="data-model"><span class="header-section-number">1</span> Data Model</h1>
+<p>Bigtable将数据组织成下面这样的map:</p>
+<p><span class="math display">\[(row:string,column:string,timestamp:int64)\rightarrow string\]</span></p>
+<p>对应用层而言，则可以将Bigtable视为如下的表结构：</p>
+<figure>
+<img src="/files/bigtable_data_model.PNG" alt="Bigtable Data Model" /><figcaption>Bigtable Data Model</figcaption>
+</figure>
+<p>Bigtable按row-key的字典序存储数据。同一个row-key的数据读写都是原子的，不论读写涉及到多少列。Bigtable按行做partition，每个partition称为一个tablet，分布及负载均衡都以tablet为最小单元。</p>
+<p>Column keys被划分成若干个column family，column family是access control的单位，内存及磁盘用量计算也是以column family为基本单元的。同一个Column family下的各个column的数据是一起压缩的，且需预先创建并较少变更。</p>
+<p>同一个cell按timestamp降序存储，保证新数据可以优先被读取。Bigtable支持保留最新的<span class="math inline">\(n\)</span>个版本或者保存某个指定timestamp后的版本。</p>
+<h1 id="api"><span class="header-section-number">2</span> API</h1>
+<p>Bigtable API包括table及column family的创建删除，cluster, table, column family metadata的修改，如access control rights变更。以及数据的write/delete/look up/iterate。</p>
+<h1 id="building-blocks"><span class="header-section-number">3</span> Building Blocks</h1>
+<p>Bigtable使用GFS存储其log及data。文件格式使用google SSTable。</p>
+<p>Bigtable依赖于chubby保证最多只有一个active master；存储数据初始位置；发现及结束tablet servers；存储schema；存储access control list。如果chubby一段时间不可用，则Bigtable不能提供服务。</p>
+<h1 id="implementation"><span class="header-section-number">4</span> Implementation</h1>
+<p>Bigtable实现包括三个主要部分，客户端library，master server及tablet server。</p>
+<p>Master server负责分配tablet到tablet server上，并检测新加入的tablet server，剔除无响应的tablet server，均衡tablet server的负载，对GFS中无用的文件执行garbage collection等。</p>
+<p>Tablet server管理一组tablet，处理这些tablet的读写，及分裂。</p>
+<p>Client直接与tablet server通信，完成读写，也不依赖于master server提供位置信息，所以client无需与master server交互。</p>
+<p>每个table从一个tablet开始，随着数据增多，自动分裂成多个tablet。</p>
+<h2 id="tablet-location"><span class="header-section-number">4.1</span> Tablet Location</h2>
+<p>Bigtable利用一个类B+ tree的结构存储tablet location信息。如下图：</p>
+<figure>
+<img src="/files/bigtable_location_hierarchy.PNG" alt="Tablet Location Hierarchy" /><figcaption>Tablet Location Hierarchy</figcaption>
+</figure>
+<p>Chubby中存root tablet的location info，root tablet中存metadata tablets的location info，metadata tablet中存各个tablet的location info。root tablet不分裂，以此保证树不超过三层。Metadata tablet的row-key包含table identifier和最后一行的信息。</p>
+<p>Client会缓存tablet location，当发现没有缓存某个tablet的位置信息或者缓存的位置信息不正确时，client会递归拉取最新的tablet位置信息。Client会prefetch多个tablet的位置信息。</p>
+<p>Metadata tablet中还存了tablet的event log方便debugging和performance analysis。</p>
+<h2 id="tablet-assignment"><span class="header-section-number">4.2</span> Tablet Assignment</h2>
+<p>Master server负责维护tablet的位置信息，包括未分配的tablet。Bigtable通过chubby来维持tablet server的心跳，每个tablet server对应chubby中的一个文件，只有当tablet server持有对应的lock时才提供服务。Master server周期性的询问各个tablet server对应lock的状态，如果不再持有锁或者联系不上tablet server，Master尝试在chubby获取锁状态决定是否要重新分配对应的tablet。</p>
+<p>Master启动时先从chubby获取live tablet servers，再从各个tablet server获取assigned tablets，最后对比metadata tablet diff出unassigned tablet。Tablet创建，删除合并都由master发起，tablet分裂由tablet server决定。</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-chang2008bigtable">
+<p>[1] F. Chang, J. Dean, S. Ghemawat, W.C. Hsieh, D.A. Wallach, M. Burrows, et al., <strong>Bigtable: A distributed storage system for structured data</strong>, ACM Transactions on Computer Systems (TOCS). 26 (2008) 4.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: database. <!--<a href="/posts/2018-01-03-Bigtable.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>

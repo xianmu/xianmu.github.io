@@ -45,6 +45,9 @@
 <h2 id="kv-seperation"><span class="header-section-number">2.1</span> KV seperation</h2>
 <p>WiscKey对于写放大的归因是直接的，写放大的直接原因是LSM-tree某个level的容量到达上限，就会触发合并，导致写入性能下降。那么为了减少写放大，减少LSM-tree每层的数据量，使其不轻易触发合并即可。</p>
 <p>LevelDB等实现中直接将kv一起存储在LSM-tree中，但是LSM-tree的排序合并是只与key有关，而与value完全无关的；另外，实际应用中大部分场景下，key都是相对较短而且长度相对稳定的，value的长度则可能方差较大。WiscKey的优化就是将key-value分开存储，LSM-tree中只存储key，value存到另外的文件(称为vLog)中，这样一来，LSM-tree中数据量较少，不易发生合并，即使发生合并，由于层次较低，写放大也不会太严重。</p>
+<figure>
+<img src="/files/wisckey_data_layout.PNG" />
+</figure>
 <p>KV分离后，读写逻辑相应要做变更。</p>
 <ol type="1">
 <li><p>首先是写，由于KV分离，WiscKey需要先将value写入vLog(append)，之后将&lt;key, value-addr, value-size&gt;写入LSM-tree。这里多了一次顺序写，但是由于LSM-tree存储的数据量较少，层次较少，这多出来的一次顺序写相比KV不分离情况下发生合并的写放大系数小很多。</p></li>
@@ -54,6 +57,9 @@
 <h2 id="garbage-collection"><span class="header-section-number">2.2</span> Garbage Collection</h2>
 <p>由于LSM-tree的合并只会清理无效的key，vLog中无效的value也需要清理(garbage collection)，否则vLog可能占用较多空间。</p>
 <p>WiscKey在vLog中不仅存储了value，也存了key，这样可以遍历vLog，然后查询LSM-tree中该key当前value的address，从而判断vLog中的value是否应该被删除。</p>
+<figure>
+<img src="/files/wisckey_garbage_collection.PNG" />
+</figure>
 <p>WiscKey保持vLog中的有效数据在一个连续的空间[head, tail)上，后台线程从head处读取一批key-value pair，筛选出有效value append到tail并更新LSM-tree中的value-addr，最后更新head/tail并持久化(head, tail与原文含义相反)。为保证crash consistency，这里的执行顺序是，先在tail append valid values，调用fsync；更新tail；更新LSM-tree中的value-addr；最后持久化新的head。vLog的空间回收可以使用fallocate，这是一个linux特有的system call(linux3.0+ext4开始支持)。</p>
 <h2 id="crash-consistency"><span class="header-section-number">2.3</span> Crash Consistency</h2>
 <p>最后，有关于crash consistency，LevelDB中因为kv连续存储，能够保证kv写入的原子性及按写入顺序恢复(异步写/批量写)，但是在WiscKey中KV分离后不能保证这一点。对于value成功写入vLog，而key写入LSM-tree前崩溃的情况，无需特殊处理，无效的value会被gc清理。而对于key成功写入，但是value写入失败的情况，在读取时需要check value-addr是否在vLog有效区间内，以及key是否匹配。(如果在value写入后fsync是否可以避免这种情况???)</p>
