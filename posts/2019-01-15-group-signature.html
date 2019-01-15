@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>group signature</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">group signature</h1>
+          <br />
+<div>
+<p>Group Signature能够保护签名者的隐私。Group Signature满足以下几个性质：</p>
+<ol type="1">
+<li><p>Unforgeability: 只有group成员能够代表group签名；</p></li>
+<li><p>Verifiability: Verifier能够验证该签名来自该group；</p></li>
+<li><p>Anonymity: 但Verifier无法确定具体是哪个成员签的；</p></li>
+<li><p>Traceability: 若发生争执，group manager可以确定签名的具体成员；</p></li>
+<li><p>Unlinkability: 无法判断两个签名是否来自于同一个成员。</p></li>
+</ol>
+<p>当然，group signature还有很多其他扩展，比如动态成员变更等等。</p>
+<p>Chaum91<span class="citation" data-cites="chaum1991group">[<a href="#ref-chaum1991group">1</a>]</span>不仅给出了Group Signature的定义，还给出了四种方案，仅介绍下最简单的第一种方案。</p>
+<h1 id="simple-method"><span class="header-section-number">1</span> Simple Method</h1>
+<p>群管理员<span class="math inline">\(\mathcal{Z}\)</span>为每个成员生成一组公私钥对，私钥发给各成员，所有公钥打乱后作为群签名的PublicKey。任意成员用其私钥中的一把签名消息，Verifier用公钥验证签名是否来自该group，但无法判断具体是哪个成员生成的签名。</p>
+<p>这个方案有一个限制，即每把私钥只能使用一次，否则Verifier知道两次签名是来自同一个成员，不满足unlinkability。该方案下，公钥也比较长。</p>
+<p>另一方面，除成员外，<span class="math inline">\(\mathcal{Z}\)</span>也能签名，不过可以通过blinded public key方案解决这个问题。基于Elgamal的blinded public key方案如下，每个成员生成自己的key pair <span class="math inline">\(&lt;s_i, g^{s_i}&gt;\)</span>并将<span class="math inline">\(g^{s_i}\)</span>发送给<span class="math inline">\(\mathcal{z}\)</span>，<span class="math inline">\(\mathcal{z}\)</span>生成随机数<span class="math inline">\(r_i\)</span>发回，群成员使用<span class="math inline">\(s_ir_i\)</span>进行签名，Verifier使用<span class="math inline">\(g^{s_ir_i}\)</span>验证。<span class="math inline">\(\mathcal{Z}\)</span>无法生成签名；每个成员只需要存储自己的原始私钥<span class="math inline">\(s_i\)</span>就够了；<span class="math inline">\(r_i\)</span>泄露也不会导致<span class="math inline">\(s_i\)</span>的暴露。</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-chaum1991group">
+<p>[1] D. Chaum, E. Van Heyst, Group signatures, in: Workshop on the Theory and Application of of Cryptographic Techniques, Springer, 1991: pp. 257–265.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: cryptography. <!--<a href="/posts/2019-01-15-group-signature.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
