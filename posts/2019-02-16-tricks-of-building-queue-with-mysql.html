@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>tricks of building queue with mysql</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">tricks of building queue with mysql</h1>
+          <br />
+<div>
+<p>在做一个任务执行的小模块，大致功能是接受客户端提交任务，执行任务，返回执行结果给客户端。系统架构大体如下：</p>
+<p>client&lt;----&gt;trackers&lt;----&gt;mysql&lt;----&gt;executors</p>
+<p>系统包括tracker模块负责接收client请求(任务提交，结果查询)，mysql记录任务执行状态及相关参数，executor模块从mysql获取任务并具体执行。由于任务数可能会比较多，mysql这里进行了分库分表，假定分成<span class="math inline">\(n\)</span>个表。不难看出，这里mysql也是充当tracker和executor间的任务队列。tracker和executor模块都是多实例的，提高可用性，同时方便集群扩容。tracker实现比较简单，根据用户请求的key，插入或者查找对应的表。</p>
+<p>Executor没有使用固定的映射关系，而是由每个executor实例轮询所有的表，获取未执行的任务执行。sql语句如下：</p>
+<pre><code>    start transaction;
+    select * from task_table_$i where status=CREATED limit 1 for update;
+    -- put into executor pool; abort if failed;
+    update task_table_$i set status=EXECUTING where id=***;
+    commit;</code></pre>
+<p>为保证同一个任务不会被多个executor执行，这里使用了排它锁(select * for update)。但是，mysql的排它锁会阻塞后续事务(<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html">mysql8.0支持nowait和skip locked</a>)。</p>
+<p>为此想了两种优化方案，第一种方案是每个executor使用不同的轮询顺序。实现上也比较简单，每个executor使用不同的与<span class="math inline">\(n\)</span>互素的step size即可。如<span class="math inline">\(n=10\)</span>，两个executor分别取step-size为3,7，则遍历顺序分别是{0,3,6,9,2,5,8,1,4,7}，{0,7,4,1,8,5,2,9,6,3}，相遇的概率较小。</p>
+<p>第二种方案见于High Performance MySQL<span class="citation" data-cites="HighPerformanceMySQL3rd">[<a href="#ref-HighPerformanceMySQL3rd">1</a>]</span>，是一种通用的解决排它锁block的问题。核心思想是先update再select。sql语句如下：</p>
+<pre><code>    update task_table_$i set status=CLAIMED,executor=$my_id where executor=NULL and status=CREATED limit 1;
+    select * from task_table_$i where executor=$my_id and status=CLAIMED;</code></pre>
+<p>这里甚至不需要事务。对于排它锁及优化方案，都需要检查并重新执行长时间无响应的任务，因为可能进程本身崩溃导致执行中的任务中断。</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-HighPerformanceMySQL3rd">
+<p>[1] B. Schwartz, P. Zaitsev, V. Tkachenko, <strong>High performance mysql: Optimization, backups, and replication</strong>, O’Reilly Media, Inc., 2012.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: development. <!--<a href="/posts/2019-02-16-tricks-of-building-queue-with-mysql.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
