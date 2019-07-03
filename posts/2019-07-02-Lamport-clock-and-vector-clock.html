@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>Lamport clock and vector clock</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">Lamport clock and vector clock</h1>
+          <br />
+<div>
+<h1 id="happened-before-relation"><span class="header-section-number">1</span> happened-before relation</h1>
+<p>定义happened-before<span class="citation" data-cites="lamport1978time">[<a href="#ref-lamport1978time">1</a>]</span>关系如下：</p>
+<ol type="1">
+<li><p>如果事件A和事件B在同一进程上，且A在B前发生，则A happened-before B；</p></li>
+<li><p>如果事件A和事件B在不同进程上，但A表示进程发送消息，B表示对应的进程接受消息，则A happened-before B；</p></li>
+<li><p>传递性，即如果A happened-before B且B happened-before C，则A happened-before C。</p></li>
+</ol>
+<p>happened-before是偏序关系，如果既没有A happened-before B也没有B happened-before A，则A, B为并发事件。</p>
+<p>那么如何确定分布式系统中事件的happened-before关系呢？物理时钟不能承担此责，单机上时钟可能跳变，机器间更是没有统一的时钟无法比较。主要有以下两种逻辑时钟描述happened-before关系，即Lamport clock和vector clock。</p>
+<h1 id="lamport-clock"><span class="header-section-number">2</span> Lamport clock</h1>
+<p>进程<span class="math inline">\(P_i\)</span>维护自己的逻辑时钟<span class="math inline">\(C_i\)</span>，假定初值都为0，该进程上事件A发生时，首先自增<span class="math inline">\(C_i\)</span>，然后将逻辑时钟作为该事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)，这样同一个进程上的事件的Lamport clock大小关系就是该进程上事件的happened-before关系。</p>
+<p>对于进程间通信的情况，假定A, B分别表示进程<span class="math inline">\(P_i, P_j\)</span>上的消息发送和接受事件。<span class="math inline">\(P_i\)</span>发送消息时带上事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)；<span class="math inline">\(P_j\)</span>在接受消息时比较<span class="math inline">\(L(A)\)</span>和自己逻辑时钟<span class="math inline">\(C_j\)</span>，如果<span class="math inline">\(C_j &lt; L(A)\)</span>，则更新<span class="math inline">\(C_j=L(A)\)</span>，之后同样自增<span class="math inline">\(C_j\)</span>并分配事件B的Lamport clock: <span class="math inline">\(L(B)=C_j\)</span>;</p>
+<p>如下图所示：</p>
+<figure>
+<img src="/files/lamport-clock.jpg" />
+</figure>
+<p>由以上Lamport clock的生成方法，不难看出，如果A happened-before B，则有<span class="math inline">\(L(A)\lt L(B)\)</span>，但反之不成立。所以，基于Lamport clock，我们还是不能确定事件的happened-before关系。</p>
+<h1 id="vector-clock"><span class="header-section-number">3</span> vector clock</h1>
+<p>与Lamport clock使用一维的逻辑时钟不同，vector clock使用一个<span class="math inline">\(n\)</span>维向量分别表示每个进程上的逻辑时钟。假定系统中一共有<span class="math inline">\(n\)</span>个进程，每个进程维护一个向量<span class="math inline">\({C_i|1\leq i\leq n}\)</span>，其中<span class="math inline">\(C_i\)</span>对应进程<span class="math inline">\(P_i\)</span>。</p>
+<p>对于进程<span class="math inline">\(P_i\)</span>上的事件A，其向量时钟<span class="math inline">\(VC(A)=[C_1,..., ++C_i,..., C_n]\)</span>。</p>
+<p>对于交互事件A, B，发送消息时同样带上<span class="math inline">\(VC(A)\)</span>，<span class="math inline">\(P_j\)</span>收到消息后比较<span class="math inline">\(VC(A)\)</span>与其本地逻辑时钟的各个分量，并用两者中的较大值更新其本地逻辑时钟，之后同样自增<span class="math inline">\(C_j\)</span>并分配本地逻辑时钟作为B的向量时钟。</p>
+<p>如下图所示：</p>
+<figure>
+<img src="/files/vector-clock.png" alt="vector clock from wiki" /><figcaption>vector clock <a href="https://en.wikipedia.org/wiki/Vector_clock">from wiki</a></figcaption>
+</figure>
+<p>由vector clock生成方法不难看出，如果<span class="math inline">\(VC(A)\lt VC(B)\)</span>(每个分量都小于等于)，则有A happened-before B，反之亦然。</p>
+<h1 id="conclusion"><span class="header-section-number">4</span> conclusion</h1>
+<p>一言以蔽之，Lamport clock是happened-before关系的必要非充分条件，而vector clock是happened-before关系的充要条件。</p>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-lamport1978time">
+<p>[1] L. Lamport, <strong>Time, clocks, and the ordering of events in a distributed system</strong>, Communications of the ACM. 21 (1978) 558–565.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: distributed system. <!--<a href="/posts/2019-07-02-Lamport-clock-and-vector-clock.md">Source</a>.--></div>
+
+<!--    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'chaoxu'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
