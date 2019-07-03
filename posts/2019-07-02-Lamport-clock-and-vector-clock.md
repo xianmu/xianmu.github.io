@@ -1,24 +1,27 @@
 ---
-title: Lamport clocks and vector clocks
+title: Lamport clock and vector clock
 tags: distributed system
 ---
 
 # happened-before relation
 
 定义happened-before[@lamport1978time]关系如下：
+
 1. 如果事件A和事件B在同一进程上，且A在B前发生，则A happened-before B；
+
 2. 如果事件A和事件B在不同进程上，但A表示进程发送消息，B表示对应的进程接受消息，则A happened-before B；
+
 3. 传递性，即如果A happened-before B且B happened-before C，则A happened-before C。
 
 happened-before是偏序关系，如果既没有A happened-before B也没有B happened-before A，则A, B为并发事件。
 
-那么如何确定分布式系统中事件的happened-before关系呢？物理时钟不能承担此责，单机上时钟可能跳变，机器间更是没有统一的时钟无法比较。主要有以下两种逻辑时钟描述happened-before关系。
+那么如何确定分布式系统中事件的happened-before关系呢？物理时钟不能承担此责，单机上时钟可能跳变，机器间更是没有统一的时钟无法比较。主要有以下两种逻辑时钟描述happened-before关系，即Lamport clock和vector clock。
 
 # Lamport clock
 
 进程$P_i$维护自己的逻辑时钟$C_i$，假定初值都为0，该进程上事件A发生时，首先自增$C_i$，然后将逻辑时钟作为该事件A的Lamport clock($L(A)$)，这样同一个进程上的事件的Lamport clock大小关系就是该进程上事件的happened-before关系。
 
-对于进程间通信的情况，假定A, B分别表示进程$P_i, P_j$上的消息发送和接受事件。$P_i$发送消息时带上事件A的Lamport clock($L(A)$)；$P_j$在接受消息时比较$L(A)$和自己逻辑时钟$C_j$，如果$C_j < L(A)$，则更新$C_j=L(A)$，之后同样自增$C_j$并分配事件B的Lamport clock--$L(B)=C_j$;
+对于进程间通信的情况，假定A, B分别表示进程$P_i, P_j$上的消息发送和接受事件。$P_i$发送消息时带上事件A的Lamport clock($L(A)$)；$P_j$在接受消息时比较$L(A)$和自己逻辑时钟$C_j$，如果$C_j < L(A)$，则更新$C_j=L(A)$，之后同样自增$C_j$并分配事件B的Lamport clock: $L(B)=C_j$;
 
 如下图所示：
 
