@@ -113,5 +113,5 @@ H3: r1[P]w2[insert y in P]r2[z]w2[z]c2 r1[z]c1
 
 实例如下：
 
-![](/files/phantom_read.PNG)
+![](/files/phantom_read.png)
 
