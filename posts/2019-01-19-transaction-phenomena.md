@@ -1,9 +1,9 @@
 ---
-title: race conditions of concurrent transactions
+title: transaction phenomena
 tags: database
 ---
 
-本文列举并发事务可能发生的竞态条件(race condition)，主要参考自经典文献A critique of ANSI SQL isolation levels[@CritiqueANSISqlIsolation]，具体例子则来自DDIA[@ddia]。
+本文列举事务隔离性的各种异像(phenomena)。A critique of ANSI SQL isolation levels[@CritiqueANSISqlIsolation]是事务隔离性方面不可不读的经典文献。
 
 # Dirty Write
 
@@ -13,7 +13,7 @@ P0: w1[x]...w2[x]...((c1 or a1) and (c2 or a2) in any order)
 
 例如，假定x,y上有约束x=y，事务T1,T2分别修改x,y，并发history为w1[x]w2[x]w2[y]c2 w1[y]c1，显然该history违背了一致性，如果串行执行，始终有x=y。
 
-具体的例子如下图：
+再举一个具体的例子[@javaPersistence]如下图：
 
 ![](/files/dirty_write.PNG)
 
@@ -37,11 +37,9 @@ H1: r1[x=50]w1[x=10]r2[x=10]r2[y=50]c2 r1[y=50]w1[y=90]c1
 
 注意，T2观察到了不一致状态(x=10,y=50)。H1违背了P1，但是却不违背A1。
 
-Dirty Read更具体的例子如下：
+具体的例子[@javaPersistence]如下：
 
 ![](/files/dirty_read.PNG)
-
-# Cursor Lost Update
 
 # Lost Update
 
@@ -55,7 +53,7 @@ H4: r1[x=100]r2[x=100]w2[x=120]c2 w1[x=130]c1
 
 最终结果只包含了T1的修改，而T2的更新丢失。
 
-实例如下：
+实例[@javaPersistence]如下：
 
 ![](/files/lost_update.PNG)
 
@@ -69,9 +67,9 @@ Nonrepeatable Read/Fuzzy Read指并发事务两次读到的数据不一致(排�
 
 r1[x]...w2[x]...c2...r1[x]...c1
 
-实例如下：
+实例[@javaPersistence]如下：
 
-![](/files/read_skew.PNG)
+![](/files/nonrepeatable_read.PNG)
 
 # Read Skew
 
@@ -79,11 +77,19 @@ History如：
 
 r1[x]...w2[x]...w2[y]...c2...r1[y]...(c1 or a1)
 
+实例[@javaPersistence]如下：
+
+![](/files/read_skew.PNG)
+
 # Write Skew 
 
 History如：
 
 r1[x]...r2[y]...w1[y]...w2[x]...(c1 and c2 occur)
+
+实例[@javaPersistence]如下：
+
+![](/files/write_skew.PNG)
 
 # Phantom
 
@@ -91,8 +97,7 @@ r1[P]...w2[y in P]...c2...r1[P]...c1
 
 实例如下：
 
-![](/files/write_skew.PNG)
+![](/files/phantom_read.PNG)
 
 这种情况既不是dirty write(覆盖未提交数据)也不是lost update(覆盖已提交数据)。但又确实是一种异常，因为如果两个事务串行执行，后者不会成功，满足至少有一个医生在线的一致性约束。
 
-与non-repeatable read不同，因为改变的是count值，而非
