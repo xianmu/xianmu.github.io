@@ -3,9 +3,9 @@ title: Reflections on Trusting Trust
 tags: security
 ---
 
-Reflections on Trusting Trust是Ken Thompson获得1983年图灵奖时的获奖演说。文章不长，一共三页，除去一些致谢的内容，技术相关的内容大约只有两页。文章介绍了一种十分有趣的在C compiler中植入后门的方法(Ken Thompson Hack-KTH)。
+Reflections on Trusting Trust是Ken Thompson获得1983年图灵奖时的获奖演说。文章不长，一共三页，除去一些致谢的内容，技术相关的内容大约只有两页。文章介绍了一种十分有趣的在C compiler中植入后门的方法(Ken Thompson Hack-KTH)。[这篇文章](https://ring0.me/2014/11/insert-backdoor-into-compiler/)基于tcc重复了该实验，建议阅读。
 
-# 故事
+# story
 
 在说具体的技术前，先说说这个故事。
 
@@ -17,33 +17,57 @@ Reflections on Trusting Trust是Ken Thompson获得1983年图灵奖时的获奖�
 
 在图灵讲演里面，Ken Thompson给出了解释。这个后门确实是在编译器中，但是其实是在第一个实现中就已经加了这个后门。该后门在检测到自己在编译编译器时，会拷贝该后门插入正在编译的编译器中；另一方面，如果检测到正在编译unix login，则插入一个提权的后门。之后Ken Thompson删除了第一个实现的源码。所以说，其实所有的compiler都是有问题的，它们都是由第一个编译器编译出来的，无论怎么重写代码，只要用有问题的编译器，都会被植入这个后门。
 
-# 技术
+# Ken Thompson Hack
 
-Ken Thompson将这个后门的实现分成三个步骤，如下：
+KTH的实现分成三步，如下：
 
-1. 写一个自复制的代码，即写一段代码，运行后打印自己的源码；
+1. 写一个自复制的代码(quine)，即写一段代码，运行后打印自己的源码；
 
 2. 在C编译器中增加一段代码，该代码在检测到编译unix login命令时插入一个提权后门；
 
 3. 在第二步的编译器中插入另一段代码，该代码在检测到编译C compiler时插入第二步的提权后门和后门生成器。
 
-## Quine
+## quine
 
-如何写一个打印自己源码的C代码，是一个经典的C练习题，应该很多人都见过。但其实这个问题并不那么容易想到，反正我没能想出来。
+如何写一个打印自己源码的C代码，是一个经典的C练习题，应该很多人都见过。文章里面给出的程序如下。
 
-## 2
+```
+char s[] = {
+    '\t',
+    '0',
+    '\n',
+    '}',
+    '.',
+```
 
-## 3
+```
+char* s = "\";printf(\"char* s = \\\"%s%s\",s,s);";
+printf("char* s = \"%s%s",s,s);
+```
 
-## 4
+这段代码的强大在于，它可以输出任意其他代码，如：
+
+```
+char* s = "\";printf(\"char* s = \\\"%s%s\",s,s);\
+printf(\"hello world!\\n\");";
+printf("char* s = \"%s%s",s,s);
+printf("hello world!\n");
+```
+
+
+## miscompile login
+
+如前所述，这一步的目的主要是植入一个带后门的login命令。
+
+## miscompile C compiler
+
+这一步的目的是给C compiler植入后门生成器。
+
+## more
 
 这个手法可以无限扩展，感染调试器，反编译器，反编译的时候在输出中将植入的后门删除，等等。
 
-## Experiment
-
-意外发现有大神基于tcc重复了该实验，详尽[这里](https://ring0.me/2014/11/insert-backdoor-into-compiler/)
-
-# 安全与信任
+# trust of trust
 
 回到题目上来，Reflections on Trusting Trust，反思信任之信任。
 
