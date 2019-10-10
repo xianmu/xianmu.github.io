@@ -67,7 +67,7 @@ ECB是不安全的(should never be used!!!), ECB由于没有随机性，对于�
 
 CBC是应用最为广泛的mode，加解密图解如下：
 
-![](http://km.oa.com/files/photos/pictures//20181117//1542446203_86.png)
+![](/files/CBC.png)
 
 上图加密，下图解密。对比ECB，几个显著不同，IV; XOR; chaining。XOR没什么可说的，由于其性质，经常被用做masking。
 
