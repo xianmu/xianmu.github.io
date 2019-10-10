@@ -146,7 +146,7 @@
 <h2 id="cbc"><span class="header-section-number">2.2</span> CBC</h2>
 <p>CBC是应用最为广泛的mode，加解密图解如下：</p>
 <figure>
-<img src="http://km.oa.com/files/photos/pictures//20181117//1542446203_86.png" />
+<img src="/files/CBC.png" />
 </figure>
 <p>上图加密，下图解密。对比ECB，几个显著不同，IV; XOR; chaining。XOR没什么可说的，由于其性质，经常被用做masking。</p>
 <p>IV(InitialVector)必须是unpredictable的，通常使用随机数(或者CSPRNG生成的伪随机数)。IV无需保密，一般放在密文开头，一些服务为了节省带宽会由c/s两端协商同一个算法生成，需要C/S两端维护并同步这个状态。</p>
