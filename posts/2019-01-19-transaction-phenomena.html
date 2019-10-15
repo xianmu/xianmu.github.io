@@ -77,7 +77,7 @@
 <p>T1观察到<span class="math inline">\(x+y=140\)</span>的不一致状态，由于T1没有再次r1[x]，所以其并不违背A2，而P2可以排除此类异常。</p>
 <p>实例如下：</p>
 <figure>
-<img src="/files/nonrepeatable_read.PNG" />
+<img src="/files/nonrepeatable_read.png" />
 </figure>
 <h1 id="read-skew"><span class="header-section-number">5</span> Read Skew</h1>
 <p>与前面的phenomena不同，read skew涉及多个数据项的一致性约束。通常是因为多个数据读取过程中发生了并发事务对这些数据项的更新，history如：</p>
