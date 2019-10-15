@@ -34,8 +34,34 @@
           <h1 id="article-title">Lamport clock and vector clock</h1>
           <br />
 <div>
-<h1 id="happened-before-relation"><span class="header-section-number">1</span> happened-before relation</h1>
-<p> 定义happened-before<span class="citation" data-cites="lamport1978time">[<a href="#ref-lamport1978time">1</a>]</span>关系如下：  1. 如果事件A和事件B在同一进程上，且A在B前发生，则A happened-before B；  2. 如果事件A和事件B在不同进程上，但A表示进程发送消息，B表示对应的进程接受消息，则A happened-before B；  3. 传递性，即如果A happened-before B且B happened-before C，则A happened-before C。  happened-before是偏序关系，如果既没有A happened-before B也没有B happened-before A，则A, B为并发事件。  那么如何确定分布式系统中事件的happened-before关系呢？物理时钟不能承担此责，单机上时钟可能跳变，机器间更是没有统一的时钟无法比较。主要有以下两种逻辑时钟描述happened-before关系，即Lamport clock和vector clock。  # Lamport clock  进程<span class="math inline">\(P_i\)</span>维护自己的逻辑时钟<span class="math inline">\(C_i\)</span>，假定初值都为0，该进程上事件A发生时，首先自增<span class="math inline">\(C_i\)</span>，然后将逻辑时钟作为该事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)，这样同一个进程上的事件的Lamport clock大小关系就是该进程上事件的happened-before关系。  对于进程间通信的情况，假定A, B分别表示进程<span class="math inline">\(P_i, P_j\)</span>上的消息发送和接受事件。<span class="math inline">\(P_i\)</span>发送消息时带上事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)；<span class="math inline">\(P_j\)</span>在接受消息时比较<span class="math inline">\(L(A)\)</span>和自己逻辑时钟<span class="math inline">\(C_j\)</span>，如果<span class="math inline">\(C_j &lt; L(A)\)</span>，则更新<span class="math inline">\(C_j=L(A)\)</span>，之后同样自增<span class="math inline">\(C_j\)</span>并分配事件B的Lamport clock: <span class="math inline">\(L(B)=C_j\)</span>;  如下图所示：  <img src="/files/lamport-clock.jpg" />  由以上Lamport clock的生成方法，不难看出，如果A happened-before B，则有<span class="math inline">\(L(A)\lt L(B)\)</span>，但反之不成立。所以，基于Lamport clock，我们还是不能确定事件的happened-before关系。  # vector clock  与Lamport clock使用一维的逻辑时钟不同，vector clock使用一个<span class="math inline">\(n\)</span>维向量分别表示每个进程上的逻辑时钟。假定系统中一共有<span class="math inline">\(n\)</span>个进程，每个进程维护一个向量<span class="math inline">\({C_i|1\leq i\leq n}\)</span>，其中<span class="math inline">\(C_i\)</span>对应进程<span class="math inline">\(P_i\)</span>。  对于进程<span class="math inline">\(P_i\)</span>上的事件A，其向量时钟<span class="math inline">\(VC(A)=[C_1,..., ++C_i,..., C_n]\)</span>。  对于交互事件A, B，发送消息时同样带上<span class="math inline">\(VC(A)\)</span>，<span class="math inline">\(P_j\)</span>收到消息后比较<span class="math inline">\(VC(A)\)</span>与其本地逻辑时钟的各个分量，并用两者中的较大值更新其本地逻辑时钟，之后同样自增<span class="math inline">\(C_j\)</span>并分配本地逻辑时钟作为B的向量时钟。  如下图所示：  <img src="/files/vector-clock.png" alt="vector clock from wiki" />  由vector clock生成方法不难看出，如果<span class="math inline">\(VC(A)\lt VC(B)\)</span>(每个分量都小于等于)，则有A happened-before B，反之亦然。  # conclusion  一言以蔽之，Lamport clock是happened-before关系的必要非充分条件，而vector clock是happened-before关系的充要条件。</p>
+<h1 id="happened-before-relation"><span class="header-section-number">1</span> happened-before relation</h1>
+<p>定义happened-before<span class="citation" data-cites="lamport1978time">[<a href="#ref-lamport1978time">1</a>]</span>关系如下：</p>
+<ol type="1">
+<li><p>如果事件A和事件B在同一进程上，且A在B前发生，则A happened-before B；</p></li>
+<li><p>如果事件A和事件B在不同进程上，但A表示进程发送消息，B表示对应的进程接受消息，则A happened-before B；</p></li>
+<li><p>传递性，即如果A happened-before B且B happened-before C，则A happened-before C。</p></li>
+</ol>
+<p>happened-before是偏序关系，如果既没有A happened-before B也没有B happened-before A，则A, B为并发事件。</p>
+<p>那么如何确定分布式系统中事件的happened-before关系呢？物理时钟不能承担此责，单机上时钟可能跳变，机器间更是没有统一的时钟无法比较。主要有以下两种逻辑时钟描述happened-before关系，即Lamport clock和vector clock。</p>
+<h1 id="lamport-clock"><span class="header-section-number">2</span> Lamport clock</h1>
+<p>进程<span class="math inline">\(P_i\)</span>维护自己的逻辑时钟<span class="math inline">\(C_i\)</span>，假定初值都为0，该进程上事件A发生时，首先自增<span class="math inline">\(C_i\)</span>，然后将逻辑时钟作为该事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)，这样同一个进程上的事件的Lamport clock大小关系就是该进程上事件的happened-before关系。</p>
+<p>对于进程间通信的情况，假定A, B分别表示进程<span class="math inline">\(P_i, P_j\)</span>上的消息发送和接受事件。<span class="math inline">\(P_i\)</span>发送消息时带上事件A的Lamport clock(<span class="math inline">\(L(A)\)</span>)；<span class="math inline">\(P_j\)</span>在接受消息时比较<span class="math inline">\(L(A)\)</span>和自己逻辑时钟<span class="math inline">\(C_j\)</span>，如果<span class="math inline">\(C_j &lt; L(A)\)</span>，则更新<span class="math inline">\(C_j=L(A)\)</span>，之后同样自增<span class="math inline">\(C_j\)</span>并分配事件B的Lamport clock: <span class="math inline">\(L(B)=C_j\)</span>;</p>
+<p>如下图所示：</p>
+<figure>
+<img src="/files/lamport-clock.jpg" />
+</figure>
+<p>由以上Lamport clock的生成方法，不难看出，如果A happened-before B，则有<span class="math inline">\(L(A)\lt L(B)\)</span>，但反之不成立。所以，基于Lamport clock，我们还是不能确定事件的happened-before关系。</p>
+<h1 id="vector-clock"><span class="header-section-number">3</span> vector clock</h1>
+<p>与Lamport clock使用一维的逻辑时钟不同，vector clock使用一个<span class="math inline">\(n\)</span>维向量分别表示每个进程上的逻辑时钟。假定系统中一共有<span class="math inline">\(n\)</span>个进程，每个进程维护一个向量<span class="math inline">\({C_i|1\leq i\leq n}\)</span>，其中<span class="math inline">\(C_i\)</span>对应进程<span class="math inline">\(P_i\)</span>。</p>
+<p>对于进程<span class="math inline">\(P_i\)</span>上的事件A，其向量时钟<span class="math inline">\(VC(A)=[C_1,..., ++C_i,..., C_n]\)</span>。</p>
+<p>对于交互事件A, B，发送消息时同样带上<span class="math inline">\(VC(A)\)</span>，<span class="math inline">\(P_j\)</span>收到消息后比较<span class="math inline">\(VC(A)\)</span>与其本地逻辑时钟的各个分量，并用两者中的较大值更新其本地逻辑时钟，之后同样自增<span class="math inline">\(C_j\)</span>并分配本地逻辑时钟作为B的向量时钟。</p>
+<p>如下图所示：</p>
+<figure>
+<img src="/files/vector-clock.png" alt="vector clock from wiki" /><figcaption>vector clock <a href="https://en.wikipedia.org/wiki/Vector_clock">from wiki</a></figcaption>
+</figure>
+<p>由vector clock生成方法不难看出，如果<span class="math inline">\(VC(A)\lt VC(B)\)</span>(每个分量都小于等于)，则有A happened-before B，反之亦然。</p>
+<h1 id="conclusion"><span class="header-section-number">4</span> conclusion</h1>
+<p>一言以蔽之，Lamport clock是happened-before关系的必要非充分条件，而vector clock是happened-before关系的充要条件。</p>
 <h1 id="bibliography" class="unnumbered">References</h1>
 <div id="refs" class="references">
 <div id="ref-lamport1978time">
