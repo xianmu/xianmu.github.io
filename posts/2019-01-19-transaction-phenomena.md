@@ -75,7 +75,7 @@ T1观察到$x+y=140$的不一致状态，由于T1没有再次r1[x]，所以其�
 
 实例如下：
 
-![](/files/nonrepeatable_read.PNG)
+![](/files/nonrepeatable_read.png)
 
 # Read Skew
 
