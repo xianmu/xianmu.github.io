@@ -3,7 +3,7 @@ title: thread-safe singleton in c++
 tags: coding
 ---
 
-C++中实现一个线程安全的单例模式(Singleton)，并不如看起来那么简单。最近刚好听了这么一个分享，阅读原始文献[@meyers2004c++]后写一个简单的记录。
+C++中实现一个线程安全的单例模式(Singleton)，并不如看起来那么简单。最近刚好听了这么一个分享，阅读原始文献[@meyers2004cpp]后写一个简单的记录。
 
 从一个简单的实现开始。
 
