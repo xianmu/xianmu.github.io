@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Pauca Sed Matura">
+        <meta name="author" content="Xian Mu">
+        <meta name="google-site-verification" content="1797926e4b62295d" />
+        <title>thread-safe singleton in c++</title>
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-4171915-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          </script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=https://xianmu.github.io/mathjax_conf.js">
+        </script>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/css/default.css" />
+    </head>
+    <body class="tex2jax_ignore">
+      <header class="hide-on-print">
+          <div id="blog-title">
+              <a href="/">Prodesse Quam Conspici</a>
+          </div>
+      </header>
+      <article>
+          <h1 id="article-title">thread-safe singleton in c++</h1>
+          <br />
+<div>
+<p>C++中实现一个线程安全的单例模式(Singleton)，并不如看起来那么简单。最近刚好听了这么一个分享，阅读原始文献<span class="citation" data-cites="meyers2004cpp">[<a href="#ref-meyers2004cpp">1</a>]</span>后写一个简单的记录。</p>
+<p>从一个简单的实现开始。</p>
+<pre><code>class Singleton {
+public:
+  static Singleton* instance();
+
+private:
+  static Singleton* pInstance;
+};
+
+Singleton* Singleton::pInstance = NULL;
+
+Singleton* Singleton::instance() {
+  if (pInstance == NULL) {
+    pInstance = new Singleton();
+  }
+  return pInstance;
+}</code></pre>
+<p>这个实现展示了Singleton的大体代码结构，为保证只有一个实例，ctor设成private，提供一个static的instance函数获取static member。在instance第一次被调用时完成static member的构造。这个实现的缺点很显然，它未考虑线程安全性的问题。两个线程可能同时判断并发现pInstance==NULL，然后都去new Singleton，导致内存泄露。</p>
+<h1 id="thread-safe-singleton"><span class="header-section-number">1</span> thread-safe singleton</h1>
+<p>不难修改以上代码使其满足线程安全性要求。</p>
+<pre><code>Singleton* Singleton::instance() {
+  Lock lock; // acquire lock
+  if (pInstance == NULL) {
+    pInstance = new Singleton();
+  }
+  return pInstance;
+} // release lock</code></pre>
+<p>这样Singleton是线程安全的了，每次只有一个线程判断是否需要new Singleton，但这个实现每次调用instance都要lock，对于已经new过的Singleton显然是没有必要的。</p>
+<h1 id="double-check-locking"><span class="header-section-number">2</span> double-check locking</h1>
+<p>为解决上面一个实现的性能问题，采用一种称为double-check locking pattern的办法，即在locking之前先检查一次pInstance==NULL，如果否，则无须lock，否则lock之后再判断是否确实需要new。</p>
+<pre><code>Singleton* Singleton::instance() {
+  if (pInstance != NULL) // 1st check
+    return pInstance;
+
+  Lock lock; // acquire lock
+  if (pInstance == NULL) { // 2nd check
+    pInstance = new Singleton();
+  }
+  return pInstance;
+} // release lock</code></pre>
+<h1 id="perils-of-dclp"><span class="header-section-number">3</span> perils of DCLP</h1>
+<p>DCLP看起来完美解决了我们的问题，但其实DCLP不是线程安全的，这是最神奇的地方。</p>
+<pre><code>pInstance = new Singleton();</code></pre>
+<p>这行代码实际包含了以下三个动作：</p>
+<pre><code>tmp=operator new(sizeof(Singleton)); // step 1
+new(pInstance)Singleton;             // step 2
+pInstance=tmp;                       // step 3</code></pre>
+<p>但是，编译器可能reorder step 2 and step 3，DCLP的代码看起来像这样：</p>
+<pre><code>Singleton* Singleton::instance() {
+  if (pInstance != NULL) // 1st check
+    return pInstance;
+
+  Lock lock; // acquire lock
+  if (pInstance == NULL) { // 2nd check
+    Singleton* tmp=operator new(sizeof(Singleton)); // step 1
+    pInstance=tmp;                       // step 3
+    new(pInstance)Singleton;             // step 2
+  }
+  return pInstance;
+} // release lock</code></pre>
+<p>先进入critical section的线程执行完step 1后，并发线程在1st check时发现pInstance!=NULL，于是return pInstance，但实际上pInstance只是一段裸内存而已，尚未构造，从而导致core。</p>
+<h1 id="thread-safe-singleton-1"><span class="header-section-number">4</span> thread safe singleton</h1>
+<p>引入memory barrier可以解决reordering的问题，代码看起来像这样：</p>
+<pre><code>Singleton* Singleton::instance() {
+  if (pInstance != NULL) // 1st check
+    return pInstance;
+
+  Lock lock; // acquire lock
+  if (pInstance == NULL) { // 2nd check
+    Singleton* tmp = new Singleton();
+    MemoryBarrier();
+    pInstance = tmp;
+  }
+  return pInstance;
+} // release lock</code></pre>
+<p>MemoryBarrier要求前后的代码不能越过memory barrier，所以tmp指向的一定是已经构造好的singleton。</p>
+<h1 id="meyers-singleton-pattern"><span class="header-section-number">5</span> Meyers' Singleton Pattern</h1>
+<p>由于C++11中规定并发线程必须等待变量初始化完成，所以线程安全的singleton实现就很简单了。</p>
+<pre><code>Singleton&amp; Singleton::instance() {
+  static Singleton ins;
+  return ins;
+}</code></pre>
+<h1 id="bibliography" class="unnumbered">References</h1>
+<div id="refs" class="references">
+<div id="ref-meyers2004cpp">
+<p>[1] S. Meyers, A. Alexandrescu, <strong>C++ and the perils of double-checked locking</strong>, Dr Dobb’s Journal-Software Tools for the Professional Programmer. (2004) 57–61.</p>
+</div>
+</div>
+
+</div>
+<div class="hide-on-print">
+<div class="info">Tags: coding. </div>
+</div>
+
+      </article>
+      <footer class="hide-on-print">© 2017 - <script>document.write(new Date().getFullYear())</script> XianMu. Licensed under <a href="http://www.wtfpl.net/txt/copying/">WTFPL v2</a>. Powered by Hakyll with <a href="https://chaoxuprime.com/blog.html">this theme</a>.</footer>
+
+    </body>
+</html>
+
+</html>
