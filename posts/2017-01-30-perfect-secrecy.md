@@ -8,4 +8,13 @@ tags: cryptography
 
 ![](/files/cryptosystem.png)
 
-一个加密系统是一个五元组$(\mathcal{P},\mathcal{K},\mathcal{C},\mathcal{E},\mathcal{D})$，其中$(\mathcal{P},\mathcal{K},\mathcal{C})$分别表示明文(plaintext)，密钥(key)，密文(ciphertext)空间；$(\mathcal{E},\mathcal{D})$分别表示加密解密算法；且满足$\mathcal{D}_k(\mathcal{E}_k(p))=p$。
+一个加密系统是一个五元组$(\mathcal{P},\mathcal{K},\mathcal{C},\mathcal{E},\mathcal{D})$，其中
+
+1. $(\mathcal{P},\mathcal{K},\mathcal{C})$分别表示明文(plaintext)，密钥(key)，密文(ciphertext)空间；
+
+2. $\mathcal{E}=\{e_k:k\in \mathcal{K}\}$是加密算法$e_k:\mathcal{P}\rightarrow\mathcal{C}$集合；
+
+3. $\mathcal{D}=\{d_k:k\in \mathcal{K}\}$是解密算法$d_k:\mathcal{C}\rightarrow\mathcal{P}$的集合；
+
+且满足$\forall k\in \mathcal{K}, \forall p\in\mathcal{P}, d_k(e_k(p))=p$。
+
