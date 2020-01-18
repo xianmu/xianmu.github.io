@@ -22,7 +22,7 @@ tags: cryptography
 
 如果一个加密系统中，密文不暴露任何明文的信息(长度除外)，则称该加密系统具有完美安全性(Perfect Secrecy)或者信息论安全(information-theoretic security)。
 
-其中，密文不暴露明文信息指任何明文得到该密文的概率都是相同的，具体分析如下。
+其中，密文不暴露明文信息指在密文的帮助下推算明文的概率分布与明文原始分布是相同的，具体分析如下。
 
 用$p_P(x)$表示明文$x(x\in\mathcal{P})$出现概率；$p_K(k)$表示密钥为$k(k\in\mathcal{K})$的概率；且$p_P(x),p_K(k)$相互独立；$C(k)=\{e_k(x):x\in\mathcal{P}\}$表示由密钥$k$得到的密文集合。
 
@@ -38,3 +38,6 @@ tags: cryptography
 
 \[ p_P(x|y)=\frac{p_P(x)\sum_{k:x=d_k(y)}p_K(k)}{\sum_{k:y\in C(k)}p_K(k)p_P(d_k(y))} \]
 
+则perfect secrecy等价于$\forall x\in\mathcal{P},y\in\mathcal{C},p_P(x|y)=p_P(x)$，即$p_C(y)=p_C(y|x)$.
+
+进一步，假定$\forall y\in\mathcal{C}, p_C(y)>0$，则$\forall x\in\mathcal{P},p_C(y|x)>0$，由于$y$是由$x$经$k$加密得到，则必然有$|\mathcal{K}|\geq|\mathcal{C}|$；另一方面每个密文都对应一个唯一的明文，故有$|\mathcal{C}|\geq|\mathcal{P}|$；综上，$|\mathcal{K}|\geq|\mathcal{P}|$，这意味着要实现perfect secrecy，密钥空间至少与明文空间一样大。
