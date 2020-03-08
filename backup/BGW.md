@@ -1,5 +1,5 @@
 ---
-title: BGW protocol for secure multiparty computation
+title: Completeness theorems for non-cryptographic fault-tolerant distributed computation
 tags: mutliparty computation
 ---
 
