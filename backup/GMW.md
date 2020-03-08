@@ -1,5 +1,5 @@
 ---
-title: GMW protocol
+title: How To Play Any Mental Game
 tags: mutliparty computation
 ---
 
